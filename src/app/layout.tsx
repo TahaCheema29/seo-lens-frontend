@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { TanStackProvider } from "../providers/TanStackProvider";
 import SeoHeader from "@/components/SeoHeader";
 
 const geistSans = Geist({
@@ -26,10 +27,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
+        suppressHydrationWarning={true}
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SeoHeader/>
-        {children}
+        <TanStackProvider>
+          <SeoHeader />
+          {children}
+        </TanStackProvider>
       </body>
     </html>
   );

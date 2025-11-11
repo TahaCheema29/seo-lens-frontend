@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/",
-        destination: "/site-crawler/",
+        destination: "/analyze-site-seo",
         permanent: false
       },
     ];

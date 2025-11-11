@@ -7,17 +7,20 @@ import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast, Toaster } from "sonner"
 import ResultsTable from "./components/ResultTable"
+import { CrawlMode, TAnalyzeSiteSeoResult } from "@/types/analyzeSiteSEO"
+import { useAnalyzeSeoSite } from "@/services/seoTools/seoToolsMutation"
+
+const validHttpUrl = /^https?:\/\/([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/.*)?$/;
 
 export default function SiteCrawlerPage() {
   const [url, setUrl] = useState("")
-  const [crawlMode, setCrawlMode] = useState("SITEMAP_ONLY")
-  const [isLoading, setIsLoading] = useState(false)
-  const [results, setResults] = useState<any[]>([])
-  const [showResults, setShowResults] = useState(false)
+  const [crawlMode, setCrawlMode] = useState<CrawlMode.SITEMAP_ONLY | CrawlMode.FULL_CRAWL>(CrawlMode.SITEMAP_ONLY)
+  const [results, setResults] = useState<TAnalyzeSiteSeoResult[]>([])
+  const { mutate: getSeoReport, isPending } = useAnalyzeSeoSite()
 
-  const handleCrawlModeChange = (value: string) => {
+  const handleCrawlModeChange = (value: CrawlMode) => {
     setCrawlMode(value)
-    if (value === "FULL_CRAWL") {
+    if (value === CrawlMode.FULL_CRAWL) {
       toast.info("⏱️ Full Crawl Selected", {
         description: "This will take more time to complete. Please be patient.",
         duration: 3000,
@@ -31,65 +34,39 @@ export default function SiteCrawlerPage() {
       return
     }
 
-    setIsLoading(true)
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      // Mock results data
-      const mockResults = [
-        {
-          url: "https://example.com",
-          title: "Home Page",
-          status: "✅ 200 OK",
-          metaDescription: "Present",
-          h1Tag: "✅ Present",
-          mobileOptimized: "✅ Yes",
-          loadTime: "1.2s",
-        },
-        {
-          url: "https://example.com/about",
-          title: "About Page",
-          status: "✅ 200 OK",
-          metaDescription: "Present",
-          h1Tag: "✅ Present",
-          mobileOptimized: "✅ Yes",
-          loadTime: "0.9s",
-        },
-        {
-          url: "https://example.com/contact",
-          title: "Contact Page",
-          status: "✅ 200 OK",
-          metaDescription: "❌ Missing",
-          h1Tag: "✅ Present",
-          mobileOptimized: "✅ Yes",
-          loadTime: "1.5s",
-        },
-        {
-          url: "https://example.com/blog",
-          title: "Blog",
-          status: "✅ 200 OK",
-          metaDescription: "Present",
-          h1Tag: "❌ Missing",
-          mobileOptimized: "❌ No",
-          loadTime: "2.1s",
-        },
-      ]
-
-      setResults(mockResults)
-      setShowResults(true)
-      toast.success("✅ Analysis Complete", {
-        description: `Found ${mockResults.length} pages to analyze`,
+    if (!validHttpUrl.test(url)) {
+      toast.error("❌ Invalid URL", {
+        description:
+          "Please enter a valid domain like https://example.com or http://example.org.",
+        duration: 4000,
       })
-    } catch (error) {
-      toast.error("Failed to analyze the website")
-    } finally {
-      setIsLoading(false)
+      return
     }
+
+    getSeoReport(
+      { userInput: { url: url, crawl_mode: crawlMode } },
+      {
+        onSuccess: (data) => {
+          setResults(data)
+          toast("✅ Analysis Complete", {
+            description: `Website analysis report is shown in the table`,
+            duration: 3000,
+          })
+        },
+        onError: () => {
+
+          toast("❌ Failed to analyze the website", {
+            description: "Please try again later.",
+            duration: 3000,
+          })
+        },
+      }
+    )
+
   }
 
   return (
-    <main className="min-h-screen bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <main className="min-h-screen bg-white dark:bg-linear--to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <div className="container mx-auto px-4 py-16">
         {/* Hero Section */}
         <div className="max-w-3xl mx-auto mb-16">
@@ -116,6 +93,9 @@ export default function SiteCrawlerPage() {
                   className="bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-400 h-12"
                   onKeyPress={(e) => e.key === "Enter" && handleAnalyze()}
                 />
+                <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
+                  Enter full URL (must start with http:// or https://)
+                </p>
               </div>
 
               {/* Crawl Mode Selection */}
@@ -139,17 +119,17 @@ export default function SiteCrawlerPage() {
               {/* Analyze Button */}
               <Button
                 onClick={handleAnalyze}
-                disabled={isLoading}
+                disabled={isPending}
                 className="w-full h-12 bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black font-semibold text-lg"
               >
-                {isLoading ? "Analyzing..." : "Analyze Website"}
+                {isPending ? "Analyzing..." : "Analyze Website"}
               </Button>
             </div>
           </Card>
         </div>
 
         {/* Results Section */}
-        {showResults && (
+        {results.length > 0 && (
           <div className="max-w-6xl mx-auto">
             <div className="mb-6">
               <h2 className="text-3xl font-bold text-black dark:text-white mb-2">Analysis Results</h2>
