@@ -22,7 +22,6 @@ export default function CrawlPreview({ crawlId }: CrawlPreviewProps) {
   const [ws, setWs] = useState<WebSocket | null>(null)
   const [frame, setFrame] = useState<CrawlFrame | null>(null)
   const [displayedScreenshot, setDisplayedScreenshot] = useState<string | null>(null)
-  const [status, setStatus] = useState("Connecting...")
   const videoRef = useRef<HTMLDivElement>(null)
   const previousScreenshotRef = useRef<string | null>(null)
   const screenshotQueueRef = useRef<string[]>([])
@@ -60,7 +59,6 @@ export default function CrawlPreview({ crawlId }: CrawlPreviewProps) {
     const websocket = new WebSocket(wsUrl)
 
     websocket.onopen = () => {
-      setStatus("Live streaming...")
       setWs(websocket)
     }
 
@@ -68,23 +66,9 @@ export default function CrawlPreview({ crawlId }: CrawlPreviewProps) {
       const data: CrawlFrame = JSON.parse(e.data)
       setFrame(data)
 
-      if (data.type === "navigate") {
-        setStatus(`Navigating to ${data.url}`)
-      } else if (data.type === "complete") {
-        setStatus(`Complete! ${data.visited || 0} pages crawled`)
-      } else if (data.type === "error") {
-        setStatus(`Error: ${data.error || "Unknown error"}`)
-      }
+
     }
 
-    websocket.onerror = () => {
-      setStatus("Connection error")
-    }
-
-    websocket.onclose = () => {
-      setStatus("Disconnected")
-      setWs(null)
-    }
 
     return () => {
       websocket.close()
@@ -113,31 +97,67 @@ export default function CrawlPreview({ crawlId }: CrawlPreviewProps) {
   }, [frame, processScreenshotQueue])
 
   return (
-    <Card className="bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-700 p-4 shadow-lg">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold text-black dark:text-white">Live Crawl Preview</h3>
-          <div className={`w-2 h-2 rounded-full ${ws ? "bg-green-500" : "bg-red-500"}`} />
-          <span className="text-sm text-gray-600 dark:text-gray-400">
-            {ws ? "Connected" : "Disconnected"}
-          </span>
+    <Card className="bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-700 shadow-lg overflow-hidden">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700 dark:to-slate-800 px-6 py-4 border-b border-gray-200 dark:border-slate-700">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <div className={`w-3 h-3 rounded-full animate-pulse ${ws ? "bg-green-500" : "bg-red-500"}`} />
+              <h3 className="text-xl font-bold text-black dark:text-white">Live Crawl Preview</h3>
+            </div>
+            <span className={`px-3 py-1 rounded-full text-xs font-medium ${ws
+                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+              }`}>
+              {ws ? "Connected" : "Disconnected"}
+            </span>
+          </div>
         </div>
       </div>
 
-      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">{status}</p>
+      <div className="p-6">
+        {/* Status Bar */}
+        <div className="mb-6">
+          {frame?.url && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 ml-4 truncate">
+              {frame.url}
+            </p>
+          )}
+        </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         {/* Live View */}
-        <div className="bg-gray-900 rounded-lg overflow-hidden">
-          <div ref={videoRef} className="h-96 md:h-[500px] flex items-center justify-center">
+        <div className="bg-gray-900 dark:bg-black rounded-lg overflow-hidden border-2 border-gray-800 dark:border-slate-700 shadow-inner">
+          <div className="bg-gray-800 dark:bg-slate-900 px-4 py-2 flex items-center gap-2 border-b border-gray-700 dark:border-slate-800">
+            <div className="flex gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-red-500" />
+              <div className="w-3 h-3 rounded-full bg-yellow-500" />
+              <div className="w-3 h-3 rounded-full bg-green-500" />
+            </div>
+            <div className="flex-1 text-center">
+              <span className="text-xs text-gray-400 font-mono">Live Preview</span>
+            </div>
+          </div>
+          <div
+            ref={videoRef}
+            className="h-96 md:h-[500px] lg:h-[600px] flex items-center justify-center bg-gray-950 dark:bg-black relative overflow-hidden"
+          >
             {displayedScreenshot ? (
               <img
                 src={displayedScreenshot}
-                alt="Live crawl"
-                className="max-w-full max-h-full object-contain"
+                alt="Live crawl preview"
+                className="max-w-full max-h-full object-contain transition-opacity duration-300"
               />
             ) : (
-              <div className="text-gray-500 text-lg">Waiting for crawl to start...</div>
+              <div className="text-center">
+                <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                <div className="text-gray-400 dark:text-gray-500 text-sm font-medium">
+                  Waiting for crawl to start...
+                </div>
+                <div className="text-gray-500 dark:text-gray-600 text-xs mt-2">
+                  Screenshots will appear here as pages are crawled
+                </div>
+              </div>
             )}
           </div>
         </div>

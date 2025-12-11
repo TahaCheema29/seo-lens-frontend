@@ -113,7 +113,8 @@ export default function KeywordRankChecker() {
                   placeholder="https://example.com"
                   value={domain}
                   onChange={(e) => setDomain(e.target.value)}
-                  className="bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-400 h-12"
+                  disabled={isPending}
+                  className="bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-400 h-12 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                   Enter full URL (must start with http:// or https://)
@@ -133,19 +134,21 @@ export default function KeywordRankChecker() {
                           placeholder={`Keyword ${index + 1}`}
                           value={keyword}
                           onChange={(e) => updateKeywordField(index, e.target.value)}
-                          className="bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-400 h-10"
+                          disabled={isPending}
+                          className="bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-400 h-10 disabled:opacity-50 disabled:cursor-not-allowed"
                         />
                       </div>
                       <Button
                         onClick={addKeywordField}
-                        className="h-10 px-3 bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black font-semibold"
+                        disabled={isPending}
+                        className="h-10 px-3 bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Add keyword"
                       >
                         +
                       </Button>
                       <Button
                         onClick={() => removeKeywordField(index)}
-                        disabled={keywords.length === 1}
+                        disabled={keywords.length === 1 || isPending}
                         className="h-10 px-3 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Remove keyword"
                       >

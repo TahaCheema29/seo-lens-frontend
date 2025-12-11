@@ -101,13 +101,14 @@ export default function KeywordResearch() {
                                                     placeholder={`Keyword ${index + 1}`}
                                                     value={field.value}
                                                     onChange={(e) => updateKeywordField(field.id, e.target.value)}
-                                                    className="bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-400 h-10"
+                                                    disabled={isPending}
+                                                    className="bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-400 h-10 disabled:opacity-50 disabled:cursor-not-allowed"
                                                 />
                                             </div>
                                             <Button
                                                 onClick={() => addKeywordField()}
                                                 disabled={isPending}
-                                                className="cursor-pointer h-10 px-3 bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black font-semibold"
+                                                className="cursor-pointer h-10 px-3 bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                                                 title="Add keyword"
                                             >
                                                 +

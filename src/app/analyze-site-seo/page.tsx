@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast, Toaster } from "sonner"
-import ResultsTable from "./components/ResultTable"
+import SEOReport from "./components/SEOReport"
 import { AnalyzeSiteSeoResponse, CrawlMode } from "@/types/analyzeSiteSEO"
 import { useAnalyzeSeoSite } from "@/services/seoTools/seoToolsMutation"
 import CrawlPreview from "@/components/CrawlPreview"
@@ -46,6 +46,11 @@ export default function SiteCrawlerPage() {
       })
       return
     }
+
+    // Clear previous results and preview
+    setResults(undefined)
+    setShowPreview(false)
+    setCrawlId(null)
 
     // Generate crawl ID for live preview (only for FULL_CRAWL mode)
     const newCrawlId = crawlMode === CrawlMode.FULL_CRAWL 
@@ -116,8 +121,9 @@ export default function SiteCrawlerPage() {
                   placeholder="https://example.com"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  className="bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-400 h-12"
-                  onKeyPress={(e) => e.key === "Enter" && handleAnalyze()}
+                  disabled={isPending}
+                  className="bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-400 h-12 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onKeyPress={(e) => e.key === "Enter" && !isPending && handleAnalyze()}
                 />
                 <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                   Enter full URL (must start with http:// or https://)
@@ -127,8 +133,8 @@ export default function SiteCrawlerPage() {
               {/* Crawl Mode Selection */}
               <div>
                 <label className="block text-sm font-medium text-black dark:text-gray-200 mb-2">Crawl Mode</label>
-                <Select value={crawlMode} onValueChange={handleCrawlModeChange}>
-                  <SelectTrigger className="bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-black dark:text-white h-12">
+                <Select value={crawlMode} onValueChange={handleCrawlModeChange} disabled={isPending}>
+                  <SelectTrigger className="bg-gray-50 dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-black dark:text-white h-12 disabled:opacity-50 disabled:cursor-not-allowed">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600">
@@ -155,29 +161,18 @@ export default function SiteCrawlerPage() {
         </div>
 
         {/* Live Preview Section - Only show for FULL_CRAWL mode */}
-        {/* {showPreview && crawlId && crawlMode === CrawlMode.FULL_CRAWL && (
-          <div className="max-w-6xl mx-auto mb-8">
+        {showPreview && crawlId && crawlMode === CrawlMode.FULL_CRAWL && (
+          <div className="max-w-6xl mx-auto mb-12">
             <CrawlPreview
               crawlId={crawlId}
             />
           </div>
-        )} */}
+        )}
 
         {/* Results Section */}
-        {/* {results.length > 0 && (
-          <div className="max-w-6xl mx-auto">
-            <div className="mb-6">
-              <h2 className="text-3xl font-bold text-black dark:text-white mb-2">Analysis Results</h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                Crawl Mode:{" "}
-                <span className="font-semibold text-black dark:text-white">
-                  {crawlMode === "SITEMAP_ONLY" ? "Sitemap Only" : "Full Crawl"}
-                </span>
-              </p>
-            </div>
-            <ResultsTable results={results} />
-          </div>
-        )} */}
+        {results && (
+          <SEOReport data={results} baseUrl={results.baseUrlChecks.baseUrl} />
+        )}
       </div>
 
       <Toaster />

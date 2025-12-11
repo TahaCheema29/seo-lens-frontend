@@ -9,8 +9,8 @@ export default function KeywordRankResults({
   results: TAnalyzeKeywordRankResult[]
   domain: string
 }) {
-  const firstPageCount = results.filter((r) => r.target_position && r.target_position <= 10).length
-  const notRankingCount = results.filter((r) => !r.target_position).length
+  const firstPageCount = results.filter((r) => r.targetPosition && r.targetPosition <= 10).length
+  const notRankingCount = results.filter((r) => !r.targetPosition).length
 
   return (
     <div className="space-y-6">
@@ -38,7 +38,7 @@ export default function KeywordRankResults({
 
       {/* Results Cards */}
       <div className="space-y-8">
-        {results.map((result, index) => (
+        {results && results.map((result, index) => (
           <Card
             key={index}
             className="bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-700 p-6 hover:border-gray-400 dark:hover:border-slate-600 transition-all hover:shadow-lg"
@@ -48,16 +48,10 @@ export default function KeywordRankResults({
               <div>
                 <h3 className="text-2xl font-bold text-black dark:text-white mb-2">{result.keyword}</h3>
                 <div className="flex gap-6 text-sm">
-                  <div>
-                    <p className="text-gray-500 dark:text-slate-400">Total Results</p>
-                    <p className="font-semibold text-black dark:text-white">
-                      {(result.total_results / 1000000).toFixed(1)}M
-                    </p>
-                  </div>
-                  {result.target_position && (
+                  {result.targetPosition && (
                     <div>
                       <p className="text-gray-500 dark:text-slate-400">Your Position</p>
-                      <p className="font-semibold text-black dark:text-white">#{result.target_position}</p>
+                      <p className="font-semibold text-black dark:text-white">#{result.targetPosition}</p>
                     </div>
                   )}
                 </div>
@@ -65,15 +59,15 @@ export default function KeywordRankResults({
 
               {/* Position Badge */}
               <div className="flex-shrink-0">
-                {result.target_position && result.target_position <= 10 ? (
+                {result.targetPosition && result.targetPosition <= 10 ? (
                   <div className="bg-black dark:bg-white rounded-lg px-4 py-2 text-center">
                     <p className="text-xs text-white dark:text-black font-semibold">RANKING</p>
-                    <p className="text-2xl font-bold text-white dark:text-black">{result.target_position}</p>
+                    <p className="text-2xl font-bold text-white dark:text-black">{result.targetPosition}</p>
                   </div>
-                ) : result.target_position ? (
+                ) : result.targetPosition ? (
                   <div className="bg-gray-400 dark:bg-gray-600 rounded-lg px-4 py-2 text-center">
                     <p className="text-xs text-white font-semibold">POSITION</p>
-                    <p className="text-2xl font-bold text-white">{result.target_position}</p>
+                    <p className="text-2xl font-bold text-white">{result.targetPosition}</p>
                   </div>
                 ) : (
                   <div className="bg-gray-300 dark:bg-gray-700 rounded-lg px-4 py-2 text-center">
@@ -89,7 +83,7 @@ export default function KeywordRankResults({
               <p className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
                 Top Search Results
               </p>
-              {result.search_results.map((searchResult, idx) => (
+              {result.searchResults && result.searchResults.map((searchResult, idx) => (
                 <div
                   key={idx}
                   className="bg-gray-50 dark:bg-slate-700 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors"

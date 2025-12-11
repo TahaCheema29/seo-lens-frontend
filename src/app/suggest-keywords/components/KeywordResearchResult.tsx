@@ -9,12 +9,12 @@ interface KeywordResearchResultsProps {
 export default function KeywordResearchResults({ results }: KeywordResearchResultsProps) {
   return (
     <div className="space-y-8">
-      {results.map((result, index) => (
+      {results && results.map((result, index) => (
         <div key={index} className="space-y-6">
           {/* Header */}
           <div className="border-b border-gray-300 dark:border-slate-700 pb-4">
-            <h3 className="text-2xl font-bold text-black dark:text-white mb-2">{result.primary_keyword}</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{result.total_related_terms} related terms found</p>
+            <h3 className="text-2xl font-bold text-black dark:text-white mb-2">{result.primaryKeyword}</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{result.totalRelatedTerms} related terms found</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -22,7 +22,7 @@ export default function KeywordResearchResults({ results }: KeywordResearchResul
             <Card className="bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-700 p-6">
               <h4 className="text-lg font-bold text-black dark:text-white mb-4">Top Search Results</h4>
               <div className="space-y-4">
-                {result.search_results.map((sr, idx) => (
+                {result.searchResults && result.searchResults.map((sr, idx) => (
                   <div
                     key={idx}
                     className="pb-4 border-b border-gray-200 dark:border-slate-700 last:border-0 last:pb-0"
@@ -62,7 +62,7 @@ export default function KeywordResearchResults({ results }: KeywordResearchResul
             <Card className="bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-700 p-6">
               <h4 className="text-lg font-bold text-black dark:text-white mb-4">Related Searches</h4>
               <div className="flex flex-wrap gap-2">
-                {result.related_searches.map((search, idx) => (
+                {result.relatedSearches && result.relatedSearches.map((search, idx) => (
                   <span
                     key={idx}
                     className="inline-block px-3 py-1 bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-gray-200 text-xs rounded-full"
@@ -77,7 +77,7 @@ export default function KeywordResearchResults({ results }: KeywordResearchResul
             <Card className="bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-700 p-6">
               <h4 className="text-lg font-bold text-black dark:text-white mb-4">People Also Ask</h4>
               <div className="space-y-3">
-                {result.people_also_ask.map((paa, idx) => (
+                {result.peopleAlsoAsk && result.peopleAlsoAsk.map((paa, idx) => (
                   <div
                     key={idx}
                     className="pb-3 border-b border-gray-200 dark:border-slate-700 last:border-0 last:pb-0"
@@ -93,7 +93,7 @@ export default function KeywordResearchResults({ results }: KeywordResearchResul
             <Card className="bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-700 p-6">
               <h4 className="text-lg font-bold text-black dark:text-white mb-4">Autocomplete Suggestions</h4>
               <div className="space-y-2">
-                {result.autocomplete_suggestions.map((suggestion, idx) => (
+                {result.autocompleteSuggestions && result.autocompleteSuggestions.map((suggestion, idx) => (
                   <div
                     key={idx}
                     className="px-3 py-2 bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 text-sm rounded hover:bg-gray-200 dark:hover:bg-slate-600 cursor-pointer transition"
@@ -108,7 +108,7 @@ export default function KeywordResearchResults({ results }: KeywordResearchResul
             <Card className="bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-700 p-6 lg:col-span-2">
               <h4 className="text-lg font-bold text-black dark:text-white mb-4">Long-tail Keywords</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {result.long_tail_keywords.map((keyword, idx) => (
+                {result.longTailKeywords && result.longTailKeywords.map((keyword, idx) => (
                   <div
                     key={idx}
                     className="px-3 py-2 bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-gray-200 text-sm rounded border border-gray-300 dark:border-slate-600"

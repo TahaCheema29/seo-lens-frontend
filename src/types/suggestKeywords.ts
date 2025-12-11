@@ -11,13 +11,13 @@ export interface TPeopleAlsoAskItem {
 }
 
 export interface TSuggestKeywordResult {
-  primary_keyword: string;
-  search_results: TSearchResult[];
-  related_searches: string[];
-  people_also_ask: TPeopleAlsoAskItem[];
-  autocomplete_suggestions: string[];
-  long_tail_keywords: string[];
-  total_related_terms: number;
+  primaryKeyword: string;
+  searchResults: TSearchResult[];
+  relatedSearches: string[];
+  peopleAlsoAsk: TPeopleAlsoAskItem[];
+  autocompleteSuggestions: string[];
+  longTailKeywords: string[];
+  totalRelatedTerms: number;
   timestamp: number; 
   date: Date; 
 }

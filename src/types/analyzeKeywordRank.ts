@@ -12,10 +12,10 @@ export interface TAnalyzeKeywordRankRequest {
 
 export interface TAnalyzeKeywordRankResult {
   keyword: string;
-  target_domain?: string | null;
-  target_position?: number | null;
-  total_results: number;
-  search_results: TAnalyzeKeywordRankRequest[];
+  targetDomain?: string | null;
+  targetPosition?: number | null;
+  totalResults: number;
+  searchResults: TAnalyzeKeywordRankRequest[];
   timestamp: number;
   date: Date; 
 }
