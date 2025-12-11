@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card"
-import { TAnalyzeSiteSeoResult } from "@/types/analyzeSiteSEO"
 
-export default function ResultsTable({ results }: { results: TAnalyzeSiteSeoResult[] }) {
+export default function ResultsTable({ results }: { results: any[] }) {
   return (
     <Card className="bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-700 overflow-hidden shadow-lg">
       <div className="overflow-x-auto">

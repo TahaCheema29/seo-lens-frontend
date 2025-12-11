@@ -7,15 +7,19 @@ import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast, Toaster } from "sonner"
 import ResultsTable from "./components/ResultTable"
-import { CrawlMode, TAnalyzeSiteSeoResult } from "@/types/analyzeSiteSEO"
+import { AnalyzeSiteSeoResponse, CrawlMode } from "@/types/analyzeSiteSEO"
 import { useAnalyzeSeoSite } from "@/services/seoTools/seoToolsMutation"
+import CrawlPreview from "@/components/CrawlPreview"
 
 const validHttpUrl = /^https?:\/\/([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/.*)?$/;
 
 export default function SiteCrawlerPage() {
   const [url, setUrl] = useState("")
   const [crawlMode, setCrawlMode] = useState<CrawlMode.SITEMAP_ONLY | CrawlMode.FULL_CRAWL>(CrawlMode.SITEMAP_ONLY)
-  const [results, setResults] = useState<TAnalyzeSiteSeoResult[]>([])
+  const [results, setResults] = useState<AnalyzeSiteSeoResponse>()
+  const [crawlId, setCrawlId] = useState<string | null>(null)
+  const [showPreview, setShowPreview] = useState(false)
+  const [requestStarted, setRequestStarted] = useState(false)
   const { mutate: getSeoReport, isPending } = useAnalyzeSeoSite()
 
   const handleCrawlModeChange = (value: CrawlMode) => {
@@ -43,18 +47,40 @@ export default function SiteCrawlerPage() {
       return
     }
 
+    // Generate crawl ID for live preview (only for FULL_CRAWL mode)
+    const newCrawlId = crawlMode === CrawlMode.FULL_CRAWL 
+      ? `seo-check-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      : null
+    
+    setCrawlId(newCrawlId)
+    setRequestStarted(true)
+    
+    // Only show preview for FULL_CRAWL mode and after a small delay to let request start
+    if (crawlMode === CrawlMode.FULL_CRAWL && newCrawlId) {
+      setTimeout(() => {
+        setShowPreview(true)
+      }, 500) // Small delay to let HTTP request start first
+    } else {
+      setShowPreview(false)
+    }
+
     getSeoReport(
-      { userInput: { url: url, crawl_mode: crawlMode } },
+      {
+        userInput: { url: url, crawlMode: crawlMode },
+        crawlId: newCrawlId || undefined
+      },
       {
         onSuccess: (data) => {
           setResults(data)
+          setRequestStarted(false)
           toast("✅ Analysis Complete", {
             description: `Website analysis report is shown in the table`,
             duration: 3000,
           })
         },
         onError: () => {
-
+          setShowPreview(false)
+          setRequestStarted(false)
           toast("❌ Failed to analyze the website", {
             description: "Please try again later.",
             duration: 3000,
@@ -128,8 +154,17 @@ export default function SiteCrawlerPage() {
           </Card>
         </div>
 
+        {/* Live Preview Section - Only show for FULL_CRAWL mode */}
+        {/* {showPreview && crawlId && crawlMode === CrawlMode.FULL_CRAWL && (
+          <div className="max-w-6xl mx-auto mb-8">
+            <CrawlPreview
+              crawlId={crawlId}
+            />
+          </div>
+        )} */}
+
         {/* Results Section */}
-        {results.length > 0 && (
+        {/* {results.length > 0 && (
           <div className="max-w-6xl mx-auto">
             <div className="mb-6">
               <h2 className="text-3xl font-bold text-black dark:text-white mb-2">Analysis Results</h2>
@@ -142,7 +177,7 @@ export default function SiteCrawlerPage() {
             </div>
             <ResultsTable results={results} />
           </div>
-        )}
+        )} */}
       </div>
 
       <Toaster />
