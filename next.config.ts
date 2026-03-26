@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         destination: "/analyze-site-seo",
         permanent: false
       },
+      {
+        source: "/admin",
+        destination: "/admin/dashboard",
+        permanent: false
+      },
     ];
   },
 };
