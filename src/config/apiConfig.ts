@@ -10,14 +10,25 @@ export const ENDPOINTS = {
     },
     suggestKeywords: {
         post: "/seo-tools/suggest-keywords"
-    }
+    },
+    auth: {
+        login: "/auth/login",
+        register: "/auth/register",
+        logout: "/auth/logout",
+    },
+    adminAuth: {
+        login: "/admin/auth/login",
+        register: "/admin/auth/register",
+        logout: "/admin/auth/logout",
+    },
 };
-console.log("api base url ", process.env.API_BASE_URL)
+
 export const axiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000",
     headers: {
         "Content-Type": "application/json",
     },
+    withCredentials: true,
 });
 
 axiosInstance.interceptors.request.use((config) => {

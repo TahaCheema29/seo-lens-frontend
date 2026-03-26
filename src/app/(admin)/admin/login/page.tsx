@@ -3,26 +3,52 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, Loader2, Shield } from 'lucide-react';
+import { Search, Loader2, Shield, Eye, EyeOff } from 'lucide-react';
+import { useLoginAdmin } from '@/services/auth/authMutation';
+import { toast } from 'sonner';
+
+const loginSchema = z.object({
+  email: z.string().email('Please enter a valid email'),
+  password: z.string().min(1, 'Password is required'),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const loginMutation = useLoginAdmin();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    setTimeout(() => {
-      setIsLoading(false);
-      router.push('/admin/dashboard/users');
-    }, 1500);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const onSubmit = (data: LoginFormData) => {
+    loginMutation.mutate(
+      { email: data.email, password: data.password },
+      {
+        onSuccess: (response) => {
+          toast.success(response.message || 'Admin login successful!');
+          router.push('/admin/dashboard/users');
+          router.refresh();
+        },
+        onError: (error: unknown) => {
+          const err = error as { response?: { data?: { message?: string } } };
+          toast.error(err.response?.data?.message || 'Login failed. Please try again.');
+        }
+      }
+    );
   };
 
   return (
@@ -43,18 +69,17 @@ export default function AdminLoginPage() {
           <CardDescription className="text-slate-400 dark:text-slate-400">Sign in to access the admin dashboard</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-slate-300 dark:text-slate-300">Admin Email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="admin@seolens.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                {...register('email')}
                 className="h-11 bg-slate-800/50 dark:bg-slate-800/50 border-slate-700 dark:border-slate-700 text-white dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:ring-emerald-500"
               />
+              {errors.email && <p className="text-xs text-red-400">{errors.email.message}</p>}
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -63,18 +88,26 @@ export default function AdminLoginPage() {
                   Forgot password?
                 </Link>
               </div>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter admin password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="h-11 bg-slate-800/50 dark:bg-slate-800/50 border-slate-700 dark:border-slate-700 text-white dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:ring-emerald-500"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter admin password"
+                  {...register('password')}
+                  className="h-11 pr-10 bg-slate-800/50 dark:bg-slate-800/50 border-slate-700 dark:border-slate-700 text-white dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:ring-emerald-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {errors.password && <p className="text-xs text-red-400">{errors.password.message}</p>}
             </div>
-            <Button type="submit" className="w-full h-11 bg-emerald-600 hover:bg-emerald-500 text-white" disabled={isLoading}>
-              {isLoading ? (
+            <Button type="submit" className="w-full h-11 bg-emerald-600 hover:bg-emerald-500 text-white" disabled={loginMutation.isPending}>
+              {loginMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Authenticating...

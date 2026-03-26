@@ -2,20 +2,16 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
-  Bell,
   Menu,
-  Search,
   User,
   LogOut,
   Moon,
   Sun,
   ChevronRight,
-  Settings,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -25,10 +21,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
-import { mockNotifications } from '@/features/dashboard/mock-data';
-import { USER_NAV_ITEMS, ADMIN_NAV_ITEMS } from '@/features/dashboard/config';
 import { useTheme } from '@/components/theme-provider';
+import { useLogoutUser, useLogoutAdmin } from '@/services/auth/authMutation';
 
 interface TopbarProps {
   role: 'user' | 'admin';
@@ -37,10 +31,10 @@ interface TopbarProps {
 
 export function Topbar({ role, onMenuToggle }: TopbarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, toggleTheme } = useTheme();
-  const unreadCount = mockNotifications.filter((n) => !n.read).length;
-
-  const navItems = role === 'admin' ? ADMIN_NAV_ITEMS : USER_NAV_ITEMS;
+  const logoutUser = useLogoutUser();
+  const logoutAdmin = useLogoutAdmin();
 
   const breadcrumbs = React.useMemo(() => {
     if (!pathname) return [];
@@ -50,6 +44,21 @@ export function Topbar({ role, onMenuToggle }: TopbarProps) {
       return { label: part.charAt(0).toUpperCase() + part.slice(1), href };
     });
   }, [pathname]);
+
+  const handleLogout = async () => {
+    try {
+      if (role === 'admin') {
+        await logoutAdmin.mutateAsync();
+      } else {
+        await logoutUser.mutateAsync();
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      router.push(role === 'admin' ? '/admin/login' : '/login');
+      router.refresh();
+    }
+  };
 
   return (
     <header className="sticky top-0 z-30 h-16 border-b border-[var(--dashboard-border)] bg-[var(--dashboard-card)] backdrop-blur-xl bg-opacity-80">
@@ -172,7 +181,10 @@ export function Topbar({ role, onMenuToggle }: TopbarProps) {
                 Settings
               </DropdownMenuItem> */}
               <DropdownMenuSeparator className="bg-[var(--dashboard-border)]" />
-              <DropdownMenuItem className="hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600 cursor-pointer">
+              <DropdownMenuItem 
+                className="hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600 cursor-pointer"
+                onClick={handleLogout}
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </DropdownMenuItem>
