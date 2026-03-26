@@ -320,51 +320,7 @@ export default function UserDashboardPage() {
           </Card>
 
           <div className="lg:col-span-3 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                  Plan Usage
-                </CardTitle>
-                <CardDescription>Your Professional plan limits</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-blue-500" />
-                      Sites
-                    </span>
-                    <span className="font-medium">12 / 50</span>
-                  </div>
-                  <Progress value={24} className="h-2" />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2">
-                      <Search className="h-4 w-4 text-violet-500" />
-                      Keywords
-                    </span>
-                    <span className="font-medium">2,847 / 10,000</span>
-                  </div>
-                  <Progress value={28} className="h-2" />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-amber-500" />
-                      Reports
-                    </span>
-                    <span className="font-medium">127 / 500</span>
-                  </div>
-                  <Progress value={25} className="h-2" />
-                </div>
-                <Button variant="outline" className="w-full">
-                  Upgrade Plan
-                </Button>
-              </CardContent>
-            </Card>
-
+            
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -374,7 +330,7 @@ export default function UserDashboardPage() {
                 <CardDescription>Last generated reports</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                {mockReports.slice(0, 3).map((report, index) => {
+                {mockReports.slice(0, 4).map((report, index) => {
                   const colors = [
                     { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-600 dark:text-blue-400' },
                     { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-600 dark:text-emerald-400' },

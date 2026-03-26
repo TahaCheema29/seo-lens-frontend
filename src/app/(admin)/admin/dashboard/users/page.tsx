@@ -4,10 +4,10 @@ import { useState } from 'react';
 import { DashboardShell } from '@/components/dashboard/common/DashboardShell';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { FilterBar } from '@/components/dashboard/common/FilterBar';
 import { DataTable } from '@/components/dashboard/common/DataTable';
-import { StatusBadge, PlanBadge } from '@/components/dashboard/common/StatusBadge';
-import { ColorfulBarChart } from '@/components/dashboard/common/ColorfulCharts';
+import { StatusBadge } from '@/components/dashboard/common/StatusBadge';
 import { mockAdminUsers } from '@/features/dashboard/mock-data';
 import type { AdminUser } from '@/features/dashboard/types';
 import {
@@ -19,10 +19,8 @@ import {
   CheckCircle,
   Users,
   Activity,
-  Key,
   TrendingUp,
-  Globe,
-  Crown,
+  ArrowRight,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -37,14 +35,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-
-// Chart data
-const usersByPlanData = [
-  { label: 'Free', value: 25, color: '#6b7280' },
-  { label: 'Starter', value: 45, color: '#3b82f6' },
-  { label: 'Pro', value: 80, color: '#8b5cf6' },
-  { label: 'Ent', value: 12, color: '#f59e0b' },
-];
 
 const userGrowthData = [
   { label: 'Jan', value: 120, color: '#3b82f6' },
@@ -62,13 +52,11 @@ export default function AdminUsersPage() {
   const filteredUsers = mockAdminUsers.filter(
     (user) =>
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.company?.toLowerCase().includes(searchQuery.toLowerCase())
+      user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const activeCount = mockAdminUsers.filter((u) => u.status === 'active').length;
-  const totalSites = mockAdminUsers.reduce((sum, u) => sum + u.sitesCount, 0);
-  const totalKeywords = mockAdminUsers.reduce((sum, u) => sum + u.keywordsCount, 0);
+  const adminCount = mockAdminUsers.filter((u) => u.role === 'admin').length;
 
   const columns = [
     {
@@ -87,18 +75,13 @@ export default function AdminUsersPage() {
       ),
     },
     {
-      key: 'company',
-      header: 'Company',
-      render: (item: AdminUser) => (
-        <span className="text-sm">{item.company || '—'}</span>
-      ),
-    },
-    {
-      key: 'plan',
-      header: 'Plan',
+      key: 'role',
+      header: 'Role',
       width: '100px',
       render: (item: AdminUser) => (
-        <PlanBadge plan={item.plan.toLowerCase() as 'free' | 'starter' | 'professional' | 'enterprise'} />
+        <Badge variant={item.role === 'admin' ? 'default' : 'secondary'}>
+          {item.role}
+        </Badge>
       ),
     },
     {
@@ -110,26 +93,9 @@ export default function AdminUsersPage() {
     {
       key: 'joined',
       header: 'Joined',
-      width: '100px',
+      width: '120px',
       render: (item: AdminUser) => (
         <span className="text-sm text-muted-foreground">{item.joinedAt}</span>
-      ),
-    },
-    {
-      key: 'activity',
-      header: 'Activity',
-      width: '150px',
-      render: (item: AdminUser) => (
-        <div className="text-sm">
-          <p className="flex items-center gap-1">
-            <Globe className="h-3 w-3 text-blue-500" />
-            {item.sitesCount} sites
-          </p>
-          <p className="text-muted-foreground flex items-center gap-1">
-            <Key className="h-3 w-3 text-violet-500" />
-            {item.keywordsCount.toLocaleString()} keywords
-          </p>
-        </div>
       ),
     },
     {
@@ -155,12 +121,12 @@ export default function AdminUsersPage() {
             {item.status === 'active' ? (
               <DropdownMenuItem className="text-destructive">
                 <Ban className="mr-2 h-4 w-4" />
-                Suspend User
+                Deactivate
               </DropdownMenuItem>
             ) : (
               <DropdownMenuItem>
                 <CheckCircle className="mr-2 h-4 w-4" />
-                Activate User
+                Activate
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>
@@ -169,15 +135,16 @@ export default function AdminUsersPage() {
     },
   ];
 
+  const recentSignups = mockAdminUsers.slice().reverse();
+
   return (
     <DashboardShell role="admin">
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Users</h1>
+            <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
             <p className="text-muted-foreground">
-              Manage user accounts and permissions
+              Manage user accounts and their associated data
             </p>
           </div>
           <Button className="bg-blue-600 hover:bg-blue-700">
@@ -186,8 +153,7 @@ export default function AdminUsersPage() {
           </Button>
         </div>
 
-        {/* Stats Overview with Colorful Accents */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card className="border-l-4 border-l-blue-500">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -228,16 +194,15 @@ export default function AdminUsersPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Sites</p>
-                  <p className="text-2xl font-bold">{totalSites}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Admins</p>
+                  <p className="text-2xl font-bold">{adminCount}</p>
                 </div>
                 <div className="rounded-full bg-violet-100 dark:bg-violet-900/30 p-3">
-                  <Globe className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                  <Users className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                 </div>
               </div>
-              <div className="mt-2 flex items-center gap-1 text-sm text-green-600">
-                <TrendingUp className="h-4 w-4" />
-                <span>+12 this week</span>
+              <div className="mt-2 flex items-center gap-1 text-sm text-muted-foreground">
+                <span>Platform administrators</span>
               </div>
             </CardContent>
           </Card>
@@ -246,73 +211,93 @@ export default function AdminUsersPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Keywords</p>
-                  <p className="text-2xl font-bold">{(totalKeywords / 1000).toFixed(1)}K</p>
+                  <p className="text-sm font-medium text-muted-foreground">New This Week</p>
+                  <p className="text-2xl font-bold">8</p>
                 </div>
                 <div className="rounded-full bg-amber-100 dark:bg-amber-900/30 p-3">
-                  <Key className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                  <TrendingUp className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 </div>
               </div>
               <div className="mt-2 flex items-center gap-1 text-sm text-green-600">
                 <TrendingUp className="h-4 w-4" />
-                <span>+5.2K tracked</span>
+                <span>+15% vs last week</span>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Charts Row */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Card>
+        <div className="grid gap-6 lg:grid-cols-7">
+          <Card className="lg:col-span-4">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-violet-500" />
-                Users by Plan
-              </CardTitle>
-              <CardDescription>Distribution across subscription tiers</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ColorfulBarChart data={usersByPlanData} height={200} showValues={true} />
-              <div className="mt-4 grid grid-cols-4 gap-2 text-center text-xs">
+              <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-gray-600 font-bold">25</div>
-                  <div className="text-muted-foreground">Free</div>
+                  <CardTitle className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                    User Growth
+                  </CardTitle>
+                  <CardDescription>New user signups over time</CardDescription>
                 </div>
-                <div>
-                  <div className="text-blue-600 font-bold">45</div>
-                  <div className="text-muted-foreground">Starter</div>
-                </div>
-                <div>
-                  <div className="text-violet-600 font-bold">80</div>
-                  <div className="text-muted-foreground">Pro</div>
-                </div>
-                <div>
-                  <div className="text-amber-600 font-bold">12</div>
-                  <div className="text-muted-foreground">Ent</div>
-                </div>
+                <Badge variant="outline">Last 6 months</Badge>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                User Growth
-              </CardTitle>
-              <CardDescription>New user signups over time</CardDescription>
             </CardHeader>
             <CardContent>
-              <ColorfulBarChart data={userGrowthData} height={200} showValues={true} />
+              <div className="h-64 flex items-end justify-between gap-2 px-4">
+                {userGrowthData.map((item, idx) => (
+                  <div key={idx} className="flex flex-col items-center gap-2 w-full">
+                    <div
+                      className="w-full rounded-t-md transition-all hover:opacity-80"
+                      style={{
+                        height: `${(item.value / 300) * 100}%`,
+                        backgroundColor: item.color,
+                        minHeight: '20px',
+                      }}
+                    />
+                    <span className="text-xs text-muted-foreground">{item.label}</span>
+                  </div>
+                ))}
+              </div>
               <div className="mt-4 flex justify-between text-sm">
                 <span className="text-muted-foreground">Growth rate: </span>
                 <span className="font-bold text-green-600">+24% this quarter</span>
               </div>
             </CardContent>
           </Card>
+
+          <div className="lg:col-span-3 space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Recent Signups</CardTitle>
+                    <CardDescription>New users this week</CardDescription>
+                  </div>
+                  <Button variant="ghost" size="sm">
+                    View all
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {recentSignups.map((user) => (
+                  <div
+                    key={user.id}
+                    className="flex items-center gap-3 rounded-lg border p-3 hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                      {user.name.charAt(0)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{user.name}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                    <StatusBadge status={user.status} size="sm" />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
-        {/* Users Table */}
         <Card>
           <CardHeader>
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -338,13 +323,11 @@ export default function AdminUsersPage() {
                     ],
                   },
                   {
-                    key: 'plan',
-                    label: 'Plan',
+                    key: 'role',
+                    label: 'Role',
                     options: [
-                      { value: 'free', label: 'Free' },
-                      { value: 'starter', label: 'Starter' },
-                      { value: 'professional', label: 'Professional' },
-                      { value: 'enterprise', label: 'Enterprise' },
+                      { value: 'user', label: 'User' },
+                      { value: 'admin', label: 'Admin' },
                     ],
                   },
                 ]}
@@ -361,7 +344,6 @@ export default function AdminUsersPage() {
           </CardContent>
         </Card>
 
-        {/* User Detail Dialog */}
         <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -386,28 +368,18 @@ export default function AdminUsersPage() {
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Company</p>
-                    <p className="font-medium">{selectedUser.company || '—'}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Plan</p>
-                    <PlanBadge plan={selectedUser.plan.toLowerCase() as 'free' | 'starter' | 'professional' | 'enterprise'} />
+                    <p className="text-sm text-muted-foreground">Role</p>
+                    <Badge variant={selectedUser.role === 'admin' ? 'default' : 'secondary'}>
+                      {selectedUser.role}
+                    </Badge>
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Status</p>
                     <StatusBadge status={selectedUser.status} />
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Role</p>
-                    <p className="font-medium capitalize">{selectedUser.role}</p>
-                  </div>
-                  <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Joined</p>
                     <p className="font-medium">{selectedUser.joinedAt}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Last Active</p>
-                    <p className="font-medium">{selectedUser.lastActive}</p>
                   </div>
                 </div>
               </div>

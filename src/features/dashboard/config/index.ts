@@ -3,18 +3,17 @@ export const USER_NAV_ITEMS = [
   { label: 'SEO Insights', href: '/dashboard/seo-insights', icon: 'Search' },
   { label: 'Keyword Analyzer', href: '/dashboard/keyword-analyzer', icon: 'Key' },
   { label: 'Rank Tracker', href: '/dashboard/rank-tracker', icon: 'TrendingUp' },
-  { label: 'Competitors', href: '/dashboard/competitors', icon: 'Users' },
-  { label: 'Reports', href: '/dashboard/reports', icon: 'FileText' },
-  { label: 'Settings', href: '/dashboard/settings', icon: 'Settings' },
+  // { label: 'Competitors', href: '/dashboard/competitors', icon: 'Users' },
+  // { label: 'Reports', href: '/dashboard/reports', icon: 'FileText' },
+  // { label: 'Settings', href: '/dashboard/settings', icon: 'Settings' },
 ] as const;
 
 export const ADMIN_NAV_ITEMS = [
-  { label: 'Dashboard', href: '/admin/dashboard', icon: 'LayoutDashboard' },
   { label: 'Users', href: '/admin/dashboard/users', icon: 'Users' },
-  { label: 'Subscriptions', href: '/admin/dashboard/subscriptions', icon: 'CreditCard' },
   { label: 'Analytics', href: '/admin/dashboard/analytics', icon: 'BarChart3' },
-  { label: 'Reports', href: '/admin/dashboard/reports', icon: 'FileText' },
-  { label: 'Settings', href: '/admin/dashboard/settings', icon: 'Settings' },
+  // { label: 'Subscriptions', href: '/admin/dashboard/subscriptions', icon: 'CreditCard' },
+  // { label: 'Reports', href: '/admin/dashboard/reports', icon: 'FileText' },
+  // { label: 'Settings', href: '/admin/dashboard/settings', icon: 'Settings' },
 ] as const;
 
 export const STATUS_COLORS = {

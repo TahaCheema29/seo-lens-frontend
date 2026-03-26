@@ -85,14 +85,14 @@ export function Topbar({ role, onMenuToggle }: TopbarProps) {
 
         <div className="flex items-center gap-2">
           {/* Search */}
-          <div className="hidden md:flex items-center relative">
+          {/* <div className="hidden md:flex items-center relative">
             <Search className="absolute left-3 h-4 w-4 text-[var(--dashboard-text-muted)]" />
             <Input
               type="search"
               placeholder="Search..."
               className="w-64 pl-10 bg-[var(--dashboard-bg)] border-[var(--dashboard-border)] text-[var(--dashboard-text)] placeholder:text-[var(--dashboard-text-muted)] focus:ring-2 focus:ring-neutral-500/20 transition-all"
             />
-          </div>
+          </div> */}
 
           {/* Theme Toggle */}
           <Button
@@ -105,7 +105,7 @@ export function Topbar({ role, onMenuToggle }: TopbarProps) {
           </Button>
 
           {/* Notifications */}
-          <DropdownMenu>
+          {/* <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
                 variant="ghost" 
@@ -139,7 +139,7 @@ export function Topbar({ role, onMenuToggle }: TopbarProps) {
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu> */}
 
           {/* User Menu */}
           <DropdownMenu>
@@ -167,10 +167,10 @@ export function Topbar({ role, onMenuToggle }: TopbarProps) {
                 <User className="mr-2 h-4 w-4 text-[var(--dashboard-text-muted)]" />
                 Profile
               </DropdownMenuItem>
-              <DropdownMenuItem className="hover:bg-[var(--dashboard-sidebar-hover)] text-[var(--dashboard-text)] cursor-pointer">
+              {/* <DropdownMenuItem className="hover:bg-[var(--dashboard-sidebar-hover)] text-[var(--dashboard-text)] cursor-pointer">
                 <Settings className="mr-2 h-4 w-4 text-[var(--dashboard-text-muted)]" />
                 Settings
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuSeparator className="bg-[var(--dashboard-border)]" />
               <DropdownMenuItem className="hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600 cursor-pointer">
                 <LogOut className="mr-2 h-4 w-4" />
