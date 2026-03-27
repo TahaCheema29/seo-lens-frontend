@@ -122,7 +122,7 @@ export default function KeywordResearch() {
               variants={fadeInUp}
             >
               <Sparkles className="w-4 h-4" />
-              <span>AI-Powered Keyword Research</span>
+              <span>Keyword Research</span>
             </motion.div>
             
             <motion.h1 
@@ -270,15 +270,6 @@ export default function KeywordResearch() {
         </AnimatePresence>
       </div>
 
-      <Toaster 
-        toastOptions={{
-          style: {
-            background: 'var(--dashboard-card)',
-            color: 'var(--dashboard-text)',
-            border: '1px solid var(--dashboard-border)',
-          },
-        }}
-      />
     </main>
   )
 }

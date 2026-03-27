@@ -19,6 +19,7 @@ export interface SEOAnalysis {
   status: "completed" | "processing" | "failed";
   criticalIssues: number;
   warnings: number;
+  crawlMode?: string;
   createdAt: string;
 }
 
@@ -86,16 +87,18 @@ interface ApiResponse<T> {
 async function handleResponse<T>(promise: Promise<any>): Promise<ApiResponse<T>> {
   try {
     const response = await promise;
+    // Backend returns { status, message, data: T }
+    // We want to extract the nested data
     return {
       status: "success",
-      data: response.data,
+      data: response.data?.data || response.data,
     };
   } catch (error: any) {
     if (error.response) {
       return {
         status: "error",
         message: error.response.data?.message || "An error occurred",
-        data: error.response.data as T,
+        data: error.response.data?.data || error.response.data as T,
       };
     }
     return {

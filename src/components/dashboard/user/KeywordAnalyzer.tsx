@@ -132,10 +132,6 @@ export function KeywordAnalyzer({ research, stats }: KeywordAnalyzerProps) {
               <RefreshCw className="mr-2 h-4 w-4" />
               Re-search
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),

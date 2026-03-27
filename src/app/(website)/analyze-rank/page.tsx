@@ -311,15 +311,6 @@ export default function KeywordRankChecker() {
         </AnimatePresence>
       </div>
 
-      <Toaster 
-        toastOptions={{
-          style: {
-            background: 'var(--dashboard-card)',
-            color: 'var(--dashboard-text)',
-            border: '1px solid var(--dashboard-border)',
-          },
-        }}
-      />
     </main>
   )
 }

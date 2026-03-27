@@ -66,7 +66,7 @@ export function SEOInsights({ analyses, stats }: SEOInsightsProps) {
               {item.url?.replace("https://", "").replace("http://", "") || "N/A"}
             </p>
             <p className="text-xs text-muted-foreground">
-              {(item as any).crawlMode === "FULL_CRAWL" ? "Full Crawl" : "Sitemap Only"}
+              {item.crawlMode === "FULL_CRAWL" ? "Full Crawl" : "Sitemap Only"}
             </p>
           </div>
         </div>
@@ -148,10 +148,6 @@ export function SEOInsights({ analyses, stats }: SEOInsightsProps) {
             }}>
               <RefreshCw className="mr-2 h-4 w-4" />
               Re-analyze
-            </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
