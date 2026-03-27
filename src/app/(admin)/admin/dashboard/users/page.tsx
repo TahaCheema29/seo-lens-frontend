@@ -145,10 +145,6 @@ export default function AdminUsersPage() {
             Manage user accounts and their associated data
           </p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="mr-2 h-4 w-4" />
-          Add User
-        </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -162,10 +158,6 @@ export default function AdminUsersPage() {
               <div className="rounded-full bg-blue-100 dark:bg-blue-900/30 p-3">
                 <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
-            </div>
-            <div className="mt-2 flex items-center gap-1 text-sm text-green-600">
-              <TrendingUp className="h-4 w-4" />
-              <span>+24 this month</span>
             </div>
           </CardContent>
         </Card>
@@ -181,10 +173,6 @@ export default function AdminUsersPage() {
                 <Activity className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
-            <div className="mt-2 flex items-center gap-1 text-sm text-green-600">
-              <TrendingUp className="h-4 w-4" />
-              <span>98% active rate</span>
-            </div>
           </CardContent>
         </Card>
 
@@ -199,9 +187,6 @@ export default function AdminUsersPage() {
                 <Users className="h-5 w-5 text-violet-600 dark:text-violet-400" />
               </div>
             </div>
-            <div className="mt-2 flex items-center gap-1 text-sm text-muted-foreground">
-              <span>Platform administrators</span>
-            </div>
           </CardContent>
         </Card>
 
@@ -215,10 +200,6 @@ export default function AdminUsersPage() {
               <div className="rounded-full bg-amber-100 dark:bg-amber-900/30 p-3">
                 <TrendingUp className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               </div>
-            </div>
-            <div className="mt-2 flex items-center gap-1 text-sm text-green-600">
-              <TrendingUp className="h-4 w-4" />
-              <span>+15% vs last week</span>
             </div>
           </CardContent>
         </Card>
