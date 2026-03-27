@@ -33,6 +33,11 @@ export const ENDPOINTS = {
         ranksStats: "/dashboard/ranks/stats",
         reports: "/dashboard/reports",
     },
+    admin: {
+        overview: "/admin/overview",
+        analytics: "/admin/analytics",
+        users: "/admin/users",
+    },
 };
 
 export const axiosInstance = axios.create({

@@ -1,11 +1,17 @@
 import { UserDashboard } from "../../../components/dashboard/user/UserDashboard";
 import { getSEOAnalyses, getKeywordResearch, getRankChecks } from "@/services/dashboard/queries";
+import { cookies } from "next/headers";
 
 export default async function UserDashboardPage() {
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore.getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ");
+
   const [analysesRes, keywordsRes, ranksRes] = await Promise.all([
-    getSEOAnalyses(),
-    getKeywordResearch(),
-    getRankChecks(),
+    getSEOAnalyses(cookieHeader),
+    getKeywordResearch(cookieHeader),
+    getRankChecks(cookieHeader),
   ]);
 
   const analyses = analysesRes.status === "success" ? analysesRes.data : [];
