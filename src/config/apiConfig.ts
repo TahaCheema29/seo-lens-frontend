@@ -33,6 +33,10 @@ export const ENDPOINTS = {
         ranksStats: "/dashboard/ranks/stats",
         reports: "/dashboard/reports",
     },
+    cicd: {
+        apiKeys: "/api/v1/api-keys",
+        deploymentAnalyses: "/api/v1/deployment-analyses",
+    },
     admin: {
         overview: "/admin/overview",
         analytics: "/admin/analytics",

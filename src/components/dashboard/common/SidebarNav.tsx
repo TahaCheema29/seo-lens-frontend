@@ -20,6 +20,9 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Terminal,
+  GitBranch,
+  Shield,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -32,6 +35,9 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Settings,
   CreditCard,
   BarChart3,
+  Terminal,
+  GitBranch,
+  Shield,
 };
 
 interface SidebarNavProps {
