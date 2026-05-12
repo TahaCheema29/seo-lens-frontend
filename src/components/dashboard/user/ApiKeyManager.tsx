@@ -34,6 +34,7 @@ export function ApiKeyManager() {
   const [selectedKeyId, setSelectedKeyId] = useState<string | null>(null);
   const [newKeyName, setNewKeyName] = useState("");
   const [newlyCreatedKey, setNewlyCreatedKey] = useState<string | null>(null);
+  const [copiedKey, setCopiedKey] = useState(false);
 
   // React Query hooks
   const { data: apiKeys = [], isLoading } = useGetApiKeys();
@@ -47,7 +48,7 @@ export function ApiKeyManager() {
         onSuccess: (data) => {
           console.log('Create key success data:', data);
           // Handle both snake_case and camelCase from backend
-          const apiKey = data?.apiKey || data?.api_key;
+          const apiKey = data?.apiKey;
           console.log('Extracted API key:', apiKey);
           if (apiKey) {
             setNewlyCreatedKey(apiKey);
@@ -74,6 +75,9 @@ export function ApiKeyManager() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
+    setCopiedKey(true);
+    toast.success("API key copied to clipboard");
+    setTimeout(() => setCopiedKey(false), 2000);
   };
 
   const formatDate = (dateString: string | null) => {
@@ -165,7 +169,11 @@ export function ApiKeyManager() {
                         variant="outline"
                         onClick={() => copyToClipboard(newlyCreatedKey)}
                       >
-                        <Copy className="h-4 w-4" />
+                        {copiedKey ? (
+                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                        ) : (
+                          <Copy className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
                   </div>

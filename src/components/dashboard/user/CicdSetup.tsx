@@ -6,16 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
-  CheckCircle2,
-  Circle,
   Copy,
   Github,
   Key,
   Play,
   FileCode2,
   AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { useGetApiKeys } from "@/services/cicd/useCicdQueries";
+import { toast } from "sonner";
 
 const WORKFLOW_YAML = `name: SEO Analysis
 
@@ -68,28 +68,24 @@ export function CicdSetup() {
       id: 1,
       title: "Generate API Key",
       description: "Create an API key from the API Keys page",
-      status: activeKey ? "complete" : "pending",
       icon: Key,
     },
     {
       id: 2,
       title: "Create GitHub Workflow",
       description: "Add the SEO Lens workflow to your repository",
-      status: activeKey ? "current" : "pending",
       icon: FileCode2,
     },
     {
       id: 3,
       title: "Configure GitHub Secrets",
       description: "Add your API key to GitHub repository secrets",
-      status: "pending",
       icon: Github,
     },
     {
       id: 4,
       title: "Test Integration",
       description: "Push to main branch and verify it works",
-      status: "pending",
       icon: Play,
     },
   ];
@@ -107,36 +103,20 @@ export function CicdSetup() {
       {/* Progress Steps */}
       <Card>
         <CardHeader>
-          <CardTitle>Setup Progress</CardTitle>
+          <CardTitle>Steps</CardTitle>
           <CardDescription>Follow these steps to integrate SEO Lens with GitHub Actions</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {steps.map((step, index) => (
+            {steps.map((step) => (
               <div key={step.id} className="flex items-start gap-4">
                 <div className="flex-shrink-0">
-                  {step.status === "complete" ? (
-                    <CheckCircle2 className="h-6 w-6 text-green-500" />
-                  ) : step.status === "current" ? (
-                    <Circle className="h-6 w-6 text-blue-500 animate-pulse" />
-                  ) : (
-                    <Circle className="h-6 w-6 text-muted-foreground" />
-                  )}
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold">
+                    {step.id}
+                  </div>
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold">{step.title}</h3>
-                    {step.status === "complete" && (
-                      <Badge variant="outline" className="text-green-500 border-green-500">
-                        Complete
-                      </Badge>
-                    )}
-                    {step.status === "current" && (
-                      <Badge variant="outline" className="text-blue-500 border-blue-500">
-                        Current
-                      </Badge>
-                    )}
-                  </div>
+                  <h3 className="font-semibold">{step.title}</h3>
                   <p className="text-sm text-muted-foreground">{step.description}</p>
                 </div>
               </div>
