@@ -11,9 +11,11 @@ export default function SeoHeader() {
   const { theme, toggleTheme } = useTheme()
    
   const navLinks = [
+    { name: "Home", href: "/" },
     { name: "Site Crawler", href: "/analyze-site-seo" },
     { name: "Keyword Rank", href: "/analyze-rank" },
     { name: "Keyword Research", href: "/suggest-keywords" },
+    { name: "Subscription", href: "/subscription" },
   ]
 
   return (
@@ -26,7 +28,7 @@ export default function SeoHeader() {
               <Search className="w-5 h-5 text-white dark:text-neutral-900" />
             </div>
             <span className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">
-              SEO Lens
+              SEOLens
             </span>
           </Link>
 
@@ -45,6 +47,18 @@ export default function SeoHeader() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
+            <Link
+              href="/login"
+              className="px-3 py-2 rounded-lg text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all duration-200"
+            >
+              Login
+            </Link>
+            <Link
+              href="/register"
+              className="px-3 py-2 rounded-lg text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all duration-200"
+            >
+              Sign up
+            </Link>
             <Button
               variant="ghost"
               size="icon"
@@ -83,6 +97,20 @@ export default function SeoHeader() {
                 {link.name}
               </Link>
             ))}
+            <Link
+              href="/login"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-4 py-3 rounded-lg text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all duration-200"
+            >
+              Login
+            </Link>
+            <Link
+              href="/register"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-4 py-3 rounded-lg text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all duration-200"
+            >
+              Sign up
+            </Link>
             <button
               onClick={() => {
                 toggleTheme()
