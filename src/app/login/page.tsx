@@ -3,32 +3,59 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, Eye, EyeOff } from 'lucide-react';
+import { useLoginUser } from '@/services/auth/authMutation';
+import { toast } from 'sonner';
+
+const loginSchema = z.object({
+  email: z.string().email('Please enter a valid email'),
+  password: z.string().min(1, 'Password is required'),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function UserLoginPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const loginMutation = useLoginUser();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    setTimeout(() => {
-      setIsLoading(false);
-      router.push('/dashboard');
-    }, 1500);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const onSubmit = (data: LoginFormData) => {
+    loginMutation.mutate(
+      { email: data.email, password: data.password },
+      {
+        onSuccess: (response) => {
+          toast.success(response.message || 'Login successful!');
+          router.push('/dashboard');
+          router.refresh();
+        },
+        onError: (error: unknown) => {
+          const err = error as { response?: { data?: { message?: string } } };
+          console.log("error is ", err)
+          toast.error(err.response?.data?.message || 'Login failed. Please try again.');
+        }
+      }
+    );
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 via-neutral-100 to-neutral-200 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-800 p-4">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiM4QjVDZjYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-      
+
       <Card className="w-full max-w-md relative z-10 shadow-2xl border-0 dark:bg-neutral-900/90 backdrop-blur-xl">
         <CardHeader className="space-y-1 text-center pb-2">
           <div className="flex justify-center mb-4">
@@ -43,18 +70,17 @@ export default function UserLoginPage() {
           <CardDescription>Sign in to your account to continue</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                {...register('email')}
                 className="h-11 dark:bg-neutral-800/50"
               />
+              {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -63,18 +89,26 @@ export default function UserLoginPage() {
                   Forgot password?
                 </Link>
               </div>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="h-11 dark:bg-neutral-800/50"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  {...register('password')}
+                  className="h-11 pr-10 dark:bg-neutral-800/50"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
             </div>
-            <Button type="submit" className="w-full h-11 bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100" disabled={isLoading}>
-              {isLoading ? (
+            <Button type="submit" className="w-full h-11 bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100" disabled={loginMutation.isPending}>
+              {loginMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Signing in...
@@ -84,7 +118,7 @@ export default function UserLoginPage() {
               )}
             </Button>
           </form>
-          
+
           <p className="mt-6 text-center text-sm text-neutral-600 dark:text-neutral-400">
             Don&apos;t have an account?{' '}
             <Link href="/register" className="font-medium text-neutral-900 hover:underline dark:text-neutral-200">

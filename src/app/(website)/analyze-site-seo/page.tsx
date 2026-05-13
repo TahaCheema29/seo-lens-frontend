@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,12 +31,21 @@ const staggerContainer = {
 }
 
 export default function SiteCrawlerPage() {
+  const searchParams = useSearchParams()
   const [url, setUrl] = useState("")
   const [crawlMode, setCrawlMode] = useState<CrawlMode.SITEMAP_ONLY | CrawlMode.FULL_CRAWL>(CrawlMode.SITEMAP_ONLY)
   const [results, setResults] = useState<AnalyzeSiteSeoResponse>()
   const [crawlId, setCrawlId] = useState<string | null>(null)
   const [showPreview, setShowPreview] = useState(false)
   const { mutate: getSeoReport, isPending } = useAnalyzeSeoSite()
+
+  // Read url from URL params on mount
+  useEffect(() => {
+    const urlFromParams = searchParams.get("url")
+    if (urlFromParams) {
+      setUrl(urlFromParams)
+    }
+  }, [searchParams])
 
   const handleCrawlModeChange = (value: CrawlMode) => {
     setCrawlMode(value)
@@ -281,15 +291,6 @@ export default function SiteCrawlerPage() {
         </AnimatePresence>
       </div>
 
-      <Toaster 
-        toastOptions={{
-          style: {
-            background: 'var(--dashboard-card)',
-            color: 'var(--dashboard-text)',
-            border: '1px solid var(--dashboard-border)',
-          },
-        }}
-      />
     </main>
   )
 }

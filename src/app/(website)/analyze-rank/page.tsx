@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,10 +29,19 @@ const staggerContainer = {
 }
 
 export default function KeywordRankChecker() {
+  const searchParams = useSearchParams()
   const [domain, setDomain] = useState("")
   const [keywords, setKeywords] = useState<string[]>([""])
   const [results, setResults] = useState<TAnalyzeKeywordRankResult[]>([])
   const { mutate: getKeywordRank, isPending } = useAnalyzeKeywordRank()
+
+  // Read domain from URL params on mount
+  useEffect(() => {
+    const domainFromUrl = searchParams.get("domain")
+    if (domainFromUrl) {
+      setDomain(domainFromUrl)
+    }
+  }, [searchParams])
 
   const addKeywordField = () => {
     setKeywords([...keywords, ""])
@@ -301,15 +311,6 @@ export default function KeywordRankChecker() {
         </AnimatePresence>
       </div>
 
-      <Toaster 
-        toastOptions={{
-          style: {
-            background: 'var(--dashboard-card)',
-            color: 'var(--dashboard-text)',
-            border: '1px solid var(--dashboard-border)',
-          },
-        }}
-      />
     </main>
   )
 }

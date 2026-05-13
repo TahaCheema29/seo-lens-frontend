@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { USER_NAV_ITEMS, ADMIN_NAV_ITEMS } from '@/features/dashboard/config';
+import { useCurrentUser, useCurrentAdmin, getInitials } from '@/services/auth/authQuery';
 import {
   LayoutDashboard,
   Search,
@@ -19,6 +20,9 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Terminal,
+  GitBranch,
+  Shield,
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -31,6 +35,9 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Settings,
   CreditCard,
   BarChart3,
+  Terminal,
+  GitBranch,
+  Shield,
 };
 
 interface SidebarNavProps {
@@ -42,6 +49,14 @@ interface SidebarNavProps {
 export function SidebarNav({ role, isOpen, onToggle }: SidebarNavProps) {
   const pathname = usePathname();
   const navItems = role === 'admin' ? ADMIN_NAV_ITEMS : USER_NAV_ITEMS;
+  const { data: user } = useCurrentUser(role === 'user');
+  const { data: admin } = useCurrentAdmin(role === 'admin');
+  console.log("useer ",user)
+  console.log("admn ",admin)
+
+  const currentUser = role === 'admin' ? admin : user;
+  const userName = currentUser?.fullName || (role === 'admin' ? 'Admin' : 'User');
+  const userInitials = getInitials(userName);
 
   return (
     <>
@@ -133,10 +148,10 @@ export function SidebarNav({ role, isOpen, onToggle }: SidebarNavProps) {
             )}
           >
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-neutral-700 text-white text-xs font-bold dark:bg-neutral-300 dark:text-neutral-900">
-              JD
+              {userInitials}
             </div>
             <div className={cn('min-w-0 flex-1', !isOpen && 'lg:hidden')}>
-              <p className="truncate text-sm font-semibold text-[var(--dashboard-text)]">John Doe</p>
+              <p className="truncate text-sm font-semibold text-[var(--dashboard-text)]">{userName}</p>
               <p className="truncate text-xs text-[var(--dashboard-text-muted)]">
                 {role === 'admin' ? 'Administrator' : 'User Account'}
               </p>

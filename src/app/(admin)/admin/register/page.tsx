@@ -3,20 +3,49 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, Loader2, Shield, CheckCircle } from 'lucide-react';
+import { Search, Loader2, Shield, CheckCircle, Eye, EyeOff } from 'lucide-react';
+import { useRegisterAdmin } from '@/services/auth/authMutation';
+import { toast } from 'sonner';
+
+const registerSchema = z.object({
+  fullName: z.string().min(1, 'Full name is required'),
+  email: z.string().email('Please enter a valid email'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain one uppercase letter')
+    .regex(/[0-9]/, 'Password must contain one number'),
+  confirmPassword: z.string().min(1, 'Please confirm your password'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ['confirmPassword'],
+});
+
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function AdminRegisterPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [accessCode, setAccessCode] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const registerMutation = useRegisterAdmin();
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+  });
+
+  const password = watch('password', '');
 
   const passwordRequirements = [
     { met: password.length >= 8, text: 'At least 8 characters' },
@@ -24,17 +53,21 @@ export default function AdminRegisterPage() {
     { met: /[0-9]/.test(password), text: 'One number' },
   ];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      return;
-    }
-    setIsLoading(true);
-    
-    setTimeout(() => {
-      setIsLoading(false);
-      router.push('/admin/dashboard/users');
-    }, 1500);
+  const onSubmit = (data: RegisterFormData) => {
+    registerMutation.mutate(
+      { fullName: data.fullName, email: data.email, password: data.password },
+      {
+        onSuccess: (response) => {
+          toast.success(response.message || 'Admin account created successfully!');
+          router.push('/admin/dashboard/users');
+          router.refresh();
+        },
+        onError: (error: unknown) => {
+          const err = error as { response?: { data?: { message?: string } } };
+          toast.error(err.response?.data?.message || 'Registration failed. Please try again.');
+        }
+      }
+    );
   };
 
   return (
@@ -55,18 +88,17 @@ export default function AdminRegisterPage() {
           <CardDescription className="text-slate-400 dark:text-slate-400">Register as a platform administrator</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="fullName" className="text-slate-300 dark:text-slate-300">Full Name</Label>
               <Input
                 id="fullName"
                 type="text"
                 placeholder="Admin Name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
+                {...register('fullName')}
                 className="h-11 bg-slate-800/50 dark:bg-slate-800/50 border-slate-700 dark:border-slate-700 text-white dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:ring-emerald-500"
               />
+              {errors.fullName && <p className="text-xs text-red-400">{errors.fullName.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-slate-300 dark:text-slate-300">Admin Email</Label>
@@ -74,23 +106,30 @@ export default function AdminRegisterPage() {
                 id="email"
                 type="email"
                 placeholder="admin@seolens.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                {...register('email')}
                 className="h-11 bg-slate-800/50 dark:bg-slate-800/50 border-slate-700 dark:border-slate-700 text-white dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:ring-emerald-500"
               />
+              {errors.email && <p className="text-xs text-red-400">{errors.email.message}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password" className="text-slate-300 dark:text-slate-300">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Create admin password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="h-11 bg-slate-800/50 dark:bg-slate-800/50 border-slate-700 dark:border-slate-700 text-white dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:ring-emerald-500"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Create admin password"
+                  {...register('password')}
+                  className="h-11 pr-10 bg-slate-800/50 dark:bg-slate-800/50 border-slate-700 dark:border-slate-700 text-white dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:ring-emerald-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {errors.password && <p className="text-xs text-red-400">{errors.password.message}</p>}
               {password && (
                 <div className="space-y-1 pt-2">
                   {passwordRequirements.map((req, idx) => (
@@ -106,22 +145,27 @@ export default function AdminRegisterPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword" className="text-slate-300 dark:text-slate-300">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="Confirm admin password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                className="h-11 bg-slate-800/50 dark:bg-slate-800/50 border-slate-700 dark:border-slate-700 text-white dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:ring-emerald-500"
-              />
-              {confirmPassword && password !== confirmPassword && (
-                <p className="text-xs text-red-400 dark:text-red-400">Passwords do not match</p>
-              )}
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm admin password"
+                  {...register('confirmPassword')}
+                  className="h-11 pr-10 bg-slate-800/50 dark:bg-slate-800/50 border-slate-700 dark:border-slate-700 text-white dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-emerald-500 focus:ring-emerald-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {errors.confirmPassword && <p className="text-xs text-red-400">{errors.confirmPassword.message}</p>}
             </div>
             
-            <Button type="submit" className="w-full h-11 bg-emerald-600 hover:bg-emerald-500 text-white" disabled={isLoading}>
-              {isLoading ? (
+            <Button type="submit" className="w-full h-11 bg-emerald-600 hover:bg-emerald-500 text-white" disabled={registerMutation.isPending}>
+              {registerMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Creating admin account...

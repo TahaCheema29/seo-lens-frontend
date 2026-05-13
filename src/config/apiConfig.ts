@@ -10,14 +10,46 @@ export const ENDPOINTS = {
     },
     suggestKeywords: {
         post: "/seo-tools/suggest-keywords"
-    }
+    },
+    auth: {
+        login: "/auth/login",
+        register: "/auth/register",
+        logout: "/auth/logout",
+        me: "/auth/me",
+    },
+    adminAuth: {
+        login: "/admin/auth/login",
+        register: "/admin/auth/register",
+        logout: "/admin/auth/logout",
+        me: "/admin/auth/me",
+    },
+    dashboard: {
+        overview: "/dashboard/overview",
+        analyses: "/dashboard/analyses",
+        analysesStats: "/dashboard/analyses/stats",
+        keywords: "/dashboard/keywords",
+        keywordsStats: "/dashboard/keywords/stats",
+        ranks: "/dashboard/ranks",
+        ranksStats: "/dashboard/ranks/stats",
+        reports: "/dashboard/reports",
+    },
+    cicd: {
+        apiKeys: "/api/v1/api-keys",
+        deploymentAnalyses: "/api/v1/deployment-analyses",
+    },
+    admin: {
+        overview: "/admin/overview",
+        analytics: "/admin/analytics",
+        users: "/admin/users",
+    },
 };
-console.log("api base url ", process.env.API_BASE_URL)
+
 export const axiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000",
     headers: {
         "Content-Type": "application/json",
     },
+    withCredentials: true,
 });
 
 axiosInstance.interceptors.request.use((config) => {

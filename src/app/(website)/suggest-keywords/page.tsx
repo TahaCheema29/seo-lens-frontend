@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -26,10 +27,19 @@ const staggerContainer = {
 }
 
 export default function KeywordResearch() {
+  const searchParams = useSearchParams()
   const [keywordFields, setKeywordFields] = useState([{ id: 1, value: "" }])
   const [nextId, setNextId] = useState(2)
   const [results, setResults] = useState<TSuggestKeywordResult[]>([])
   const { mutate: getSuggestedKeywords, isPending } = useSuggestedKeywords()
+
+  // Read keyword from URL params on mount
+  useEffect(() => {
+    const keywordFromUrl = searchParams.get("keyword")
+    if (keywordFromUrl) {
+      setKeywordFields([{ id: 1, value: keywordFromUrl }])
+    }
+  }, [searchParams])
 
   const addKeywordField = () => {
     setKeywordFields([...keywordFields, { id: nextId, value: "" }])
@@ -112,7 +122,7 @@ export default function KeywordResearch() {
               variants={fadeInUp}
             >
               <Sparkles className="w-4 h-4" />
-              <span>AI-Powered Keyword Research</span>
+              <span>Keyword Research</span>
             </motion.div>
             
             <motion.h1 
@@ -260,15 +270,6 @@ export default function KeywordResearch() {
         </AnimatePresence>
       </div>
 
-      <Toaster 
-        toastOptions={{
-          style: {
-            background: 'var(--dashboard-card)',
-            color: 'var(--dashboard-text)',
-            border: '1px solid var(--dashboard-border)',
-          },
-        }}
-      />
     </main>
   )
 }

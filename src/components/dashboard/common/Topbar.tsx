@@ -2,20 +2,16 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
-  Bell,
   Menu,
-  Search,
   User,
   LogOut,
   Moon,
   Sun,
   ChevronRight,
-  Settings,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -25,10 +21,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
-import { mockNotifications } from '@/features/dashboard/mock-data';
-import { USER_NAV_ITEMS, ADMIN_NAV_ITEMS } from '@/features/dashboard/config';
 import { useTheme } from '@/components/theme-provider';
+import { useLogoutUser, useLogoutAdmin } from '@/services/auth/authMutation';
+import { useCurrentUser, useCurrentAdmin, getInitials } from '@/services/auth/authQuery';
 
 interface TopbarProps {
   role: 'user' | 'admin';
@@ -37,10 +32,16 @@ interface TopbarProps {
 
 export function Topbar({ role, onMenuToggle }: TopbarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, toggleTheme } = useTheme();
-  const unreadCount = mockNotifications.filter((n) => !n.read).length;
-
-  const navItems = role === 'admin' ? ADMIN_NAV_ITEMS : USER_NAV_ITEMS;
+  const logoutUser = useLogoutUser();
+  const logoutAdmin = useLogoutAdmin();
+  const { data: user } = useCurrentUser(role === 'user');
+  const { data: admin } = useCurrentAdmin(role === 'admin');
+  
+  const currentUser = role === 'admin' ? admin : user;
+  const userName = currentUser?.fullName || (role === 'admin' ? 'Admin' : 'User');
+  const userInitials = getInitials(userName);
 
   const breadcrumbs = React.useMemo(() => {
     if (!pathname) return [];
@@ -50,6 +51,21 @@ export function Topbar({ role, onMenuToggle }: TopbarProps) {
       return { label: part.charAt(0).toUpperCase() + part.slice(1), href };
     });
   }, [pathname]);
+
+  const handleLogout = async () => {
+    try {
+      if (role === 'admin') {
+        await logoutAdmin.mutateAsync();
+      } else {
+        await logoutUser.mutateAsync();
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      router.push(role === 'admin' ? '/admin/login' : '/login');
+      router.refresh();
+    }
+  };
 
   return (
     <header className="sticky top-0 z-30 h-16 border-b border-[var(--dashboard-border)] bg-[var(--dashboard-card)] backdrop-blur-xl bg-opacity-80">
@@ -149,30 +165,33 @@ export function Topbar({ role, onMenuToggle }: TopbarProps) {
                 className="relative h-9 w-9 rounded-full p-0 hover:bg-[var(--dashboard-sidebar-hover)]"
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-800 text-white dark:bg-neutral-200 dark:text-neutral-900 text-sm font-bold shadow-md">
-                  JD
+                  {userInitials}
                 </div>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-[var(--dashboard-card)] border-[var(--dashboard-border)]">
               <DropdownMenuLabel className="text-[var(--dashboard-text)]">
                 <div className="flex flex-col">
-                  <span>John Doe</span>
+                  <span>{userName}</span>
                   <span className="text-xs font-normal text-[var(--dashboard-text-muted)]">
                     {role === 'admin' ? 'Administrator' : 'User Account'}
                   </span>
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-[var(--dashboard-border)]" />
-              <DropdownMenuItem className="hover:bg-[var(--dashboard-sidebar-hover)] text-[var(--dashboard-text)] cursor-pointer">
+              {/* <DropdownMenuSeparator className="bg-[var(--dashboard-border)]" /> */}
+              {/* <DropdownMenuItem className="hover:bg-[var(--dashboard-sidebar-hover)] text-[var(--dashboard-text)] cursor-pointer">
                 <User className="mr-2 h-4 w-4 text-[var(--dashboard-text-muted)]" />
                 Profile
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               {/* <DropdownMenuItem className="hover:bg-[var(--dashboard-sidebar-hover)] text-[var(--dashboard-text)] cursor-pointer">
                 <Settings className="mr-2 h-4 w-4 text-[var(--dashboard-text-muted)]" />
                 Settings
               </DropdownMenuItem> */}
               <DropdownMenuSeparator className="bg-[var(--dashboard-border)]" />
-              <DropdownMenuItem className="hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600 cursor-pointer">
+              <DropdownMenuItem 
+                className="hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600 cursor-pointer"
+                onClick={handleLogout}
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </DropdownMenuItem>
