@@ -33,7 +33,7 @@ jobs:
         run: |
           echo "🚀 Triggering SEO analysis..."
           
-          RESPONSE=$(curl -s -X POST "https://api.seo-lens.com/webhooks/trigger" \\
+          RESPONSE=$(curl -s -X POST "https://seo-lens-backend-production.up.railway.app/webhooks/trigger" \\
             -H "Authorization: Bearer \${{ secrets.SEO_LENS_API_KEY }}" \\
             -H "Content-Type: application/json" \\
             -d '{
