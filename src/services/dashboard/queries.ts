@@ -1,4 +1,5 @@
 import { createServerAxios } from "@/config/serverAxios";
+import { axiosInstance } from "@/config/apiConfig";
 import { ENDPOINTS } from "@/config/apiConfig";
 
 export interface DashboardOverview {
@@ -109,57 +110,63 @@ async function handleResponse<T>(promise: Promise<any>): Promise<ApiResponse<T>>
   }
 }
 
+function getAxios(cookieHeader?: string) {
+  // Use server axios when cookieHeader is provided (server-side)
+  // Use client axios otherwise (client-side with credentials)
+  return cookieHeader ? createServerAxios(cookieHeader) : axiosInstance;
+}
+
 export async function getDashboardOverview(cookieHeader?: string) {
-  const axios = createServerAxios(cookieHeader);
+  const axios = getAxios(cookieHeader);
   return handleResponse<DashboardOverview>(
     axios.get(ENDPOINTS.dashboard.overview)
   );
 }
 
 export async function getSEOAnalyses(cookieHeader?: string) {
-  const axios = createServerAxios(cookieHeader);
+  const axios = getAxios(cookieHeader);
   return handleResponse<SEOAnalysis[]>(
     axios.get(ENDPOINTS.dashboard.analyses)
   );
 }
 
 export async function getKeywordResearch(cookieHeader?: string) {
-  const axios = createServerAxios(cookieHeader);
+  const axios = getAxios(cookieHeader);
   return handleResponse<KeywordResearch[]>(
     axios.get(ENDPOINTS.dashboard.keywords)
   );
 }
 
 export async function getRankChecks(cookieHeader?: string) {
-  const axios = createServerAxios(cookieHeader);
+  const axios = getAxios(cookieHeader);
   return handleResponse<RankCheck[]>(
     axios.get(ENDPOINTS.dashboard.ranks)
   );
 }
 
 export async function getReports(cookieHeader?: string) {
-  const axios = createServerAxios(cookieHeader);
+  const axios = getAxios(cookieHeader);
   return handleResponse<Report[]>(
     axios.get(ENDPOINTS.dashboard.reports)
   );
 }
 
 export async function getAnalysesStats(cookieHeader?: string) {
-  const axios = createServerAxios(cookieHeader);
+  const axios = getAxios(cookieHeader);
   return handleResponse<AnalysesStats>(
     axios.get(ENDPOINTS.dashboard.analysesStats)
   );
 }
 
 export async function getKeywordsStats(cookieHeader?: string) {
-  const axios = createServerAxios(cookieHeader);
+  const axios = getAxios(cookieHeader);
   return handleResponse<KeywordsStats>(
     axios.get(ENDPOINTS.dashboard.keywordsStats)
   );
 }
 
 export async function getRanksStats(cookieHeader?: string) {
-  const axios = createServerAxios(cookieHeader);
+  const axios = getAxios(cookieHeader);
   return handleResponse<RanksStats>(
     axios.get(ENDPOINTS.dashboard.ranksStats)
   );

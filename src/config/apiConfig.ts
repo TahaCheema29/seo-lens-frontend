@@ -53,6 +53,14 @@ export const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use((config) => {
+    // Add auth token from localStorage for cross-domain support
+    if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('access_token') || localStorage.getItem('admin_access_token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+    }
+    
     if (config.data) {
         config.data = toSnake(config.data);
     }

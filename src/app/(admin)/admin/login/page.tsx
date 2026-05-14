@@ -40,14 +40,16 @@ export default function AdminLoginPage() {
       {
         onSuccess: (response) => {
           toast.success(response.message || 'Admin login successful!');
-          // Use full page navigation to ensure cookies are sent properly
-          setTimeout(() => {
-            if (typeof window !== 'undefined') {
-              window.location.href = '/admin/dashboard/users';
-            } else {
-              router.push('/admin/dashboard/users');
-            }
-          }, 500);
+          
+          // Store token in localStorage for cross-domain auth
+          const token = response.data?.accessToken || response.data?.access_token;
+          if (token && typeof window !== 'undefined') {
+            localStorage.setItem('admin_access_token', token);
+            console.log('[Admin Login] Token stored in localStorage');
+          }
+          
+          // Navigate to dashboard
+          router.push('/admin/dashboard/users');
         },
         onError: (error: unknown) => {
           console.log('Admin login error:', error);

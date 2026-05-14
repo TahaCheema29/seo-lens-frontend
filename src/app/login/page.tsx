@@ -46,14 +46,16 @@ export default function UserLoginPage() {
         onSuccess: (response) => {
           console.log('Login success response:', response);
           toast.success(response.message || 'Login successful!');
-          // Use full page navigation for production to ensure cookies are sent properly
-          setTimeout(() => {
-            if (typeof window !== 'undefined') {
-              window.location.href = '/dashboard';
-            } else {
-              router.push('/dashboard');
-            }
-          }, 500);
+          
+          // Store token in localStorage for cross-domain auth
+          const token = response.data?.accessToken || response.data?.access_token;
+          if (token && typeof window !== 'undefined') {
+            localStorage.setItem('access_token', token);
+            console.log('[Login] Token stored in localStorage');
+          }
+          
+          // Navigate to dashboard
+          router.push('/dashboard');
         },
         onError: (error: unknown) => {
           console.log('Login error:', error);

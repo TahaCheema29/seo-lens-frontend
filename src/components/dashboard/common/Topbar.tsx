@@ -62,6 +62,12 @@ export function Topbar({ role, onMenuToggle }: TopbarProps) {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      // Clear tokens from localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('admin_access_token');
+        console.log('[Logout] Tokens cleared from localStorage');
+      }
       router.push(role === 'admin' ? '/admin/login' : '/login');
       router.refresh();
     }

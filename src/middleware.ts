@@ -4,45 +4,11 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    const userToken = request.cookies.get('access_token');
-    const adminToken = request.cookies.get('admin_access_token');
-
-    if (pathname.startsWith('/dashboard')) {
-        if (!userToken) {
-            return NextResponse.redirect(new URL('/login', request.url));
-        }
-        if (adminToken) {
-            return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-        }
-    }
-
-    if (pathname.startsWith('/admin/dashboard')) {
-        if (!adminToken) {
-            return NextResponse.redirect(new URL('/admin/login', request.url));
-        }
-        if (userToken) {
-            return NextResponse.redirect(new URL('/dashboard', request.url));
-        }
-    }
-
-    if (pathname === '/login' || pathname === '/register') {
-        if (userToken) {
-            return NextResponse.redirect(new URL('/dashboard', request.url));
-        }
-        if (adminToken) {
-            return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-        }
-    }
-
-    if (pathname === '/admin/login' || pathname === '/admin/register') {
-        if (adminToken) {
-            return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-        }
-        if (userToken) {
-            return NextResponse.redirect(new URL('/dashboard', request.url));
-        }
-    }
-
+    // NOTE: Cross-domain cookies don't work between railway.app and vercel.app
+    // Auth is handled client-side for now. 
+    // TODO: Use same domain for both frontend and backend (e.g., app.yourdomain.com and api.yourdomain.com)
+    
+    // Allow all requests through - client-side will handle auth
     return NextResponse.next();
 }
 
