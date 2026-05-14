@@ -59,12 +59,19 @@ export default function UserRegisterPage() {
       {
         onSuccess: (response) => {
           toast.success(response.message || 'Account created successfully!');
-          router.push('/dashboard');
-          router.refresh();
+          // Use full page navigation to ensure cookies are sent properly
+          setTimeout(() => {
+            if (typeof window !== 'undefined') {
+              window.location.href = '/dashboard';
+            } else {
+              router.push('/dashboard');
+            }
+          }, 500);
         },
         onError: (error: unknown) => {
-          const err = error as { response?: { data?: { message?: string } } };
-          toast.error(err.response?.data?.message || 'Registration failed. Please try again.');
+          const err = error as { response?: { data?: { message?: string } }; message?: string };
+          console.log('Registration error:', error);
+          toast.error(err.response?.data?.message || err.message || 'Registration failed. Please try again.');
         }
       }
     );

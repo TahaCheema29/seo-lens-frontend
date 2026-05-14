@@ -14,6 +14,11 @@ import { Search, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useLoginUser } from '@/services/auth/authMutation';
 import { toast } from 'sonner';
 
+// Helper to check if we're in production
+const isProduction = typeof window !== 'undefined' && 
+  (window.location.hostname.includes('vercel.app') || 
+   window.location.hostname.includes('railway.app'));
+
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email'),
   password: z.string().min(1, 'Password is required'),
@@ -39,14 +44,21 @@ export default function UserLoginPage() {
       { email: data.email, password: data.password },
       {
         onSuccess: (response) => {
+          console.log('Login success response:', response);
           toast.success(response.message || 'Login successful!');
-          router.push('/dashboard');
-          router.refresh();
+          // Use full page navigation for production to ensure cookies are sent properly
+          setTimeout(() => {
+            if (typeof window !== 'undefined') {
+              window.location.href = '/dashboard';
+            } else {
+              router.push('/dashboard');
+            }
+          }, 500);
         },
         onError: (error: unknown) => {
-          const err = error as { response?: { data?: { message?: string } } };
-          console.log("error is ", err)
-          toast.error(err.response?.data?.message || 'Login failed. Please try again.');
+          console.log('Login error:', error);
+          const err = error as { response?: { data?: { message?: string } }; message?: string };
+          toast.error(err.response?.data?.message || err.message || 'Login failed. Please try again.');
         }
       }
     );

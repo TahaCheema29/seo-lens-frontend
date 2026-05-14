@@ -59,12 +59,19 @@ export default function AdminRegisterPage() {
       {
         onSuccess: (response) => {
           toast.success(response.message || 'Admin account created successfully!');
-          router.push('/admin/dashboard/users');
-          router.refresh();
+          // Use full page navigation to ensure cookies are sent properly
+          setTimeout(() => {
+            if (typeof window !== 'undefined') {
+              window.location.href = '/admin/dashboard/users';
+            } else {
+              router.push('/admin/dashboard/users');
+            }
+          }, 500);
         },
         onError: (error: unknown) => {
-          const err = error as { response?: { data?: { message?: string } } };
-          toast.error(err.response?.data?.message || 'Registration failed. Please try again.');
+          console.log('Admin registration error:', error);
+          const err = error as { response?: { data?: { message?: string } }; message?: string };
+          toast.error(err.response?.data?.message || err.message || 'Registration failed. Please try again.');
         }
       }
     );
