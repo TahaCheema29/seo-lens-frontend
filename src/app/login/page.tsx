@@ -48,7 +48,7 @@ export default function UserLoginPage() {
           toast.success(response.message || 'Login successful!');
           
           // Store token in localStorage for cross-domain auth
-          const token = response.data?.accessToken || response.data?.access_token;
+          const token = response.data?.accessToken;
           if (token && typeof window !== 'undefined') {
             localStorage.setItem('access_token', token);
             console.log('[Login] Token stored in localStorage');

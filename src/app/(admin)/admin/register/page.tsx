@@ -61,7 +61,7 @@ export default function AdminRegisterPage() {
           toast.success(response.message || 'Admin account created successfully!');
 
           // Store token in localStorage for cross-domain auth
-          const token = response.data?.accessToken || response.data?.access_token;
+          const token = response.data?.accessToken;
           if (token && typeof window !== 'undefined') {
             localStorage.setItem('admin_access_token', token);
             console.log('[Admin Register] Token stored in localStorage');
