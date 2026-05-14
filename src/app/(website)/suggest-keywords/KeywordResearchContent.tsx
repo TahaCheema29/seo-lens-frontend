@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
-import { toast, Toaster } from "sonner"
+import { toast } from "sonner"
 import KeywordResearchResults from "./components/KeywordResearchResult"
 import { TSuggestKeywordResult } from "@/types/suggestKeywords"
 import { useSuggestedKeywords } from "@/services/seoTools/seoToolsMutation"
@@ -100,7 +100,6 @@ export default function KeywordResearchContent() {
 
   return (
     <main className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
-      <Toaster />
       {/* Background Pattern */}
       <div className="fixed inset-0 opacity-[0.02] dark:opacity-[0.05] pointer-events-none">
         <div className="absolute inset-0" style={{

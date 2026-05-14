@@ -1,27 +1,53 @@
+'use client';
+
+import { useEffect, useState } from "react";
 import { SEOInsights } from "@/components/dashboard/user/SEOInsights";
 import { getSEOAnalyses, getAnalysesStats } from "@/services/dashboard/queries";
-import { cookies } from "next/headers";
+import { AuthGuard } from "@/components/auth/AuthGuard";
+import { Loader2 } from "lucide-react";
 
-export default async function SEOInsightsPage() {
-  const cookieStore = await cookies();
-  const cookieHeader = cookieStore.getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
+export default function SEOInsightsPage() {
+  const [data, setData] = useState<{ analyses: any[]; stats: any } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [analysesRes, statsRes] = await Promise.all([
-    getSEOAnalyses(cookieHeader),
-    getAnalysesStats(cookieHeader),
-  ]); 
-  console.log("analysis is ",analysesRes)
-  console.log("stats res is ",statsRes)
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [analysesRes, statsRes] = await Promise.all([
+          getSEOAnalyses(),
+          getAnalysesStats(),
+        ]);
 
-  const analyses = analysesRes.status === "success" ? analysesRes.data : [];
-  const stats = statsRes.status === "success" ? statsRes.data : null;
+        console.log("[SEOInsights] analysis:", analysesRes);
+        console.log("[SEOInsights] stats:", statsRes);
+
+        const analyses = analysesRes.status === "success" ? analysesRes.data : [];
+        const stats = statsRes.status === "success" ? statsRes.data : null;
+
+        setData({ analyses, stats });
+      } catch (error) {
+        console.error("[SEOInsights] Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  if (isLoading || !data) {
+    return (
+      <AuthGuard>
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-neutral-600" />
+        </div>
+      </AuthGuard>
+    );
+  }
 
   return (
-    <SEOInsights
-      analyses={analyses}
-      stats={stats}
-    />
+    <AuthGuard>
+      <SEOInsights analyses={data.analyses} stats={data.stats} />
+    </AuthGuard>
   );
 }

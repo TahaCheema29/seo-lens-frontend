@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { toast, Toaster } from "sonner"
+import { toast } from "sonner"
 import SEOReport from "./components/SEOReport"
 import { AnalyzeSiteSeoResponse, CrawlMode } from "@/types/analyzeSiteSEO"
 import { useAnalyzeSeoSite } from "@/services/seoTools/seoToolsMutation"
@@ -117,7 +117,6 @@ export default function SiteCrawlerPageContent() {
 
   return (
     <main className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
-      <Toaster />
       {/* Background Pattern */}
       <div className="fixed inset-0 opacity-[0.02] dark:opacity-[0.05] pointer-events-none">
         <div className="absolute inset-0" style={{
