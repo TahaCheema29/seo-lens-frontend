@@ -262,6 +262,11 @@ export default function HomePage() {
                   </Link>
                 </li>
                 <li>
+                  <Link href="/analyze-competitor" className="hover:text-foreground">
+                    Competitor Analysis
+                  </Link>
+                </li>
+                <li>
                   <Link href="/analyze-rank" className="hover:text-foreground">
                     Rank check
                   </Link>

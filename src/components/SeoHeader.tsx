@@ -18,6 +18,7 @@ export default function SeoHeader() {
 
   const services = [
     { name: "Site SEO Analyzer", href: "/analyze-site-seo" },
+    { name: "Competitor Analysis", href: "/analyze-competitor" },
     { name: "Keyword Rank", href: "/analyze-rank" },
     { name: "Keyword Research", href: "/suggest-keywords" },
   ]

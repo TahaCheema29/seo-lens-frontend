@@ -1,5 +1,6 @@
 import { axiosInstance, ENDPOINTS } from "@/config/apiConfig";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { subscriptionKeys } from "@/services/subscription/subscriptionQueries";
 
 export interface LoginRequest {
     email: string;
@@ -84,19 +85,33 @@ export const useRegisterAdmin = () => {
 };
 
 export const useLogoutUser = () => {
+    const queryClient = useQueryClient();
+    
     return useMutation({
         mutationFn: async () => {
             const response = await axiosInstance.post(ENDPOINTS.auth.logout);
             return response.data;
         },
+        onSuccess: () => {
+            // Clear subscription and user cache on logout
+            queryClient.removeQueries({ queryKey: subscriptionKeys.all });
+            queryClient.removeQueries({ queryKey: ["currentUser"] });
+        },
     });
 };
 
 export const useLogoutAdmin = () => {
+    const queryClient = useQueryClient();
+    
     return useMutation({
         mutationFn: async () => {
             const response = await axiosInstance.post(ENDPOINTS.adminAuth.logout);
             return response.data;
+        },
+        onSuccess: () => {
+            // Clear subscription and admin cache on logout
+            queryClient.removeQueries({ queryKey: subscriptionKeys.all });
+            queryClient.removeQueries({ queryKey: ["currentAdmin"] });
         },
     });
 };
