@@ -178,3 +178,6 @@ export interface RankCheckHistory {
   status: 'completed' | 'processing' | 'failed';
   createdAt: string;
 }
+
+// Re-export competitor analysis types
+export * from './competitorAnalysis';

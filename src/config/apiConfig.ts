@@ -42,6 +42,13 @@ export const ENDPOINTS = {
         analytics: "/admin/analytics",
         users: "/admin/users",
     },
+    competitorAnalysis: {
+        analyze: "/competitor-analysis/analyze",
+        history: "/competitor-analysis/history",
+        getById: (id: string) => `/competitor-analysis/${id}`,
+        delete: (id: string) => `/competitor-analysis/${id}`,
+        export: (id: string, format: string) => `/competitor-analysis/${id}/export?format=${format}`,
+    },
 };
 
 export const axiosInstance = axios.create({

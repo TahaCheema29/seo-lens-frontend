@@ -3,10 +3,10 @@ export const USER_NAV_ITEMS = [
   { label: 'SEO Insights', href: '/dashboard/seo-insights', icon: 'Search' },
   { label: 'Keyword Analyzer', href: '/dashboard/keyword-analyzer', icon: 'Key' },
   { label: 'Rank Tracker', href: '/dashboard/rank-tracker', icon: 'TrendingUp' },
+  { label: 'Competitor Analysis', href: '/dashboard/competitor-analysis', icon: 'Users' },
   { label: 'API Keys', href: '/dashboard/api-keys', icon: 'Shield' },
   { label: 'CI/CD Setup', href: '/dashboard/cicd-setup', icon: 'Terminal' },
   { label: 'CI/CD Analyses', href: '/dashboard/cicd-analyses', icon: 'GitBranch' },
-  // { label: 'Competitors', href: '/dashboard/competitors', icon: 'Users' },
   // { label: 'Reports', href: '/dashboard/reports', icon: 'FileText' },
   // { label: 'Settings', href: '/dashboard/settings', icon: 'Settings' },
 ] as const;

@@ -11,7 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 
 interface Column<T> {
   key: string;
@@ -25,6 +25,8 @@ interface DataTableProps<T> {
   columns: Column<T>[];
   keyExtractor: (item: T) => string;
   className?: string;
+  isLoading?: boolean;
+  emptyMessage?: string;
   pagination?: {
     page: number;
     pageSize: number;
@@ -38,6 +40,8 @@ export function DataTable<T>({
   columns,
   keyExtractor,
   className,
+  isLoading = false,
+  emptyMessage = 'No results found.',
   pagination,
 }: DataTableProps<T>) {
   const totalPages = pagination
@@ -58,13 +62,25 @@ export function DataTable<T>({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.length === 0 ? (
+            {isLoading ? (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  No results found.
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Loading...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : data.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center text-muted-foreground"
+                >
+                  {emptyMessage}
                 </TableCell>
               </TableRow>
             ) : (

@@ -14,6 +14,7 @@ export default function SeoHeader() {
     { name: "Site Crawler", href: "/analyze-site-seo" },
     { name: "Keyword Rank", href: "/analyze-rank" },
     { name: "Keyword Research", href: "/suggest-keywords" },
+    { name: "Competitor Analysis", href: "/analyze-competitor" },
   ]
 
   return (
