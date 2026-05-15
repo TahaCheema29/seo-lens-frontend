@@ -7,11 +7,13 @@ import { Loader2, CheckCircle } from "lucide-react"
 import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
 import { subscriptionKeys } from "@/services/subscription/subscriptionQueries"
+import { useCurrentUser } from "@/services/auth/authQuery"
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { data: user } = useCurrentUser()
   const [isProcessing, setIsProcessing] = useState(true)
 
   useEffect(() => {
@@ -27,7 +29,7 @@ function PaymentSuccessContent() {
     const timer = setTimeout(async () => {
       try {
         // Invalidate subscription query to refresh the data
-        await queryClient.invalidateQueries({ queryKey: subscriptionKeys.detail() })
+        await queryClient.invalidateQueries({ queryKey: subscriptionKeys.detail(user?.id) })
         
         toast.success("Welcome to Pro! 🎉 All features unlocked.")
         router.push("/dashboard")
@@ -40,7 +42,7 @@ function PaymentSuccessContent() {
     }, 2000)
 
     return () => clearTimeout(timer)
-  }, [searchParams, router, queryClient])
+  }, [searchParams, router, queryClient, user])
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
