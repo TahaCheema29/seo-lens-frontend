@@ -12,8 +12,17 @@ interface SEOReportProps {
 }
 
 export default function SEOReport({ data, baseUrl }: SEOReportProps) {
+  // Handle potentially undefined data
+  if (!data) {
+    return (
+      <div className="max-w-6xl mx-auto p-8 text-center">
+        <p className="text-gray-600 dark:text-gray-400">No analysis data available.</p>
+      </div>
+    )
+  }
+
   const { baseUrlChecks, urlResults } = data
-  const firstResult = urlResults[0] || null
+  const firstResult = urlResults?.[0] || null
 
   // Calculate overall score
   const calculateScore = () => {
@@ -24,12 +33,12 @@ export default function SEOReport({ data, baseUrl }: SEOReportProps) {
 
     // Count base URL checks
     const baseChecks = [
-      baseUrlChecks.wwwRedirectCheck,
-      baseUrlChecks.robotsTxtCheck,
-      baseUrlChecks.httpsSslCheck,
-      baseUrlChecks.directoryListingCheck,
-      baseUrlChecks.expiresHeadersCheck,
-      baseUrlChecks.cachingAdvice,
+      baseUrlChecks?.wwwRedirectCheck,
+      baseUrlChecks?.robotsTxtCheck,
+      baseUrlChecks?.httpsSslCheck,
+      baseUrlChecks?.directoryListingCheck,
+      baseUrlChecks?.expiresHeadersCheck,
+      baseUrlChecks?.cachingAdvice,
     ]
 
     baseChecks.forEach((check) => {

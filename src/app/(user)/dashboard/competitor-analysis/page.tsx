@@ -12,8 +12,9 @@ import {
 import type {
   CompetitorAnalysisSummary
 } from '@/features/dashboard/types/competitorAnalysis';
+import { ProGuard } from '@/components/subscription/ProGuard';
 
-export default function CompetitorAnalysisPage() {
+function CompetitorAnalysisContent() {
   const [activeTab, setActiveTab] = useState('history');
 
   // TanStack Query hooks
@@ -99,5 +100,16 @@ export default function CompetitorAnalysisPage() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+export default function CompetitorAnalysisPage() {
+  return (
+    <ProGuard
+      featureName="Competitor Analysis"
+      description="Compare your website with competitors to identify SEO opportunities and get actionable insights."
+    >
+      <CompetitorAnalysisContent />
+    </ProGuard>
   );
 }

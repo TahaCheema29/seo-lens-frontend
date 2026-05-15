@@ -92,13 +92,23 @@ export default function SiteCrawlerPageContent() {
       },
       {
         onSuccess: (data) => {
+          console.log("SEO Analysis Response:", data)
+          if (!data || !data.baseUrlChecks || !data.urlResults) {
+            console.error("Invalid response structure:", data)
+            toast.error("Analysis completed but received invalid data structure", {
+              description: "Please try again.",
+              duration: 3000,
+            })
+            return
+          }
           setResults(data)
           toast.success("Analysis Complete", {
             description: "Website analysis report is ready",
             duration: 3000,
           })
         },
-        onError: () => {
+        onError: (error) => {
+          console.error("SEO Analysis Error:", error)
           setShowPreview(false)
           toast.error("Failed to analyze the website", {
             description: "Please try again later.",
@@ -278,14 +288,14 @@ export default function SiteCrawlerPageContent() {
 
         {/* Results Section */}
         <AnimatePresence>
-          {results && (
+          {results && results.baseUrlChecks && results.urlResults && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
             >
-              <SEOReport data={results} baseUrl={results.baseUrlChecks.baseUrl} />
+              <SEOReport data={results} baseUrl={results.baseUrlChecks.baseUrl || url} />
             </motion.div>
           )}
         </AnimatePresence>

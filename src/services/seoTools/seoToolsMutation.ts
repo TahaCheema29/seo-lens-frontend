@@ -15,8 +15,14 @@ export const useAnalyzeSeoSite = () => {
         }) => {
             const params = crawlId ? { crawlId } : {}
             const response = await axiosInstance.post(ENDPOINTS.analyzeSeoSite.post, userInput, { params });
-            const results: unknown = response.data.data;
-
+            
+            // Handle both possible response structures
+            const results = response.data?.data || response.data;
+            
+            if (!results) {
+                throw new Error('No data received from API');
+            }
+            
             return results as AnalyzeSiteSeoResponse;
         },
     });

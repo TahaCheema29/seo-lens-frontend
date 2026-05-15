@@ -1,14 +1,14 @@
 export const USER_NAV_ITEMS = [
-  { label: 'Overview', href: '/dashboard', icon: 'LayoutDashboard' },
-  { label: 'SEO Insights', href: '/dashboard/seo-insights', icon: 'Search' },
-  { label: 'Keyword Analyzer', href: '/dashboard/keyword-analyzer', icon: 'Key' },
-  { label: 'Rank Tracker', href: '/dashboard/rank-tracker', icon: 'TrendingUp' },
-  { label: 'Competitor Analysis', href: '/dashboard/competitor-analysis', icon: 'Users' },
-  { label: 'API Keys', href: '/dashboard/api-keys', icon: 'Shield' },
-  { label: 'CI/CD Setup', href: '/dashboard/cicd-setup', icon: 'Terminal' },
-  { label: 'CI/CD Analyses', href: '/dashboard/cicd-analyses', icon: 'GitBranch' },
-  // { label: 'Reports', href: '/dashboard/reports', icon: 'FileText' },
-  // { label: 'Settings', href: '/dashboard/settings', icon: 'Settings' },
+  { label: 'Overview', href: '/dashboard', icon: 'LayoutDashboard', isPro: false },
+  { label: 'SEO Insights', href: '/dashboard/seo-insights', icon: 'Search', isPro: false },
+  { label: 'Keyword Analyzer', href: '/dashboard/keyword-analyzer', icon: 'Key', isPro: false },
+  { label: 'Rank Tracker', href: '/dashboard/rank-tracker', icon: 'TrendingUp', isPro: false },
+  { label: 'Competitor Analysis', href: '/dashboard/competitor-analysis', icon: 'Users', isPro: true },
+  { label: 'API Keys', href: '/dashboard/api-keys', icon: 'Shield', isPro: true },
+  { label: 'CI/CD Setup', href: '/dashboard/cicd-setup', icon: 'Terminal', isPro: true },
+  { label: 'CI/CD Analyses', href: '/dashboard/cicd-analyses', icon: 'GitBranch', isPro: true },
+  // { label: 'Reports', href: '/dashboard/reports', icon: 'FileText', isPro: false },
+  // { label: 'Settings', href: '/dashboard/settings', icon: 'Settings', isPro: false },
 ] as const;
 
 export const ADMIN_NAV_ITEMS = [

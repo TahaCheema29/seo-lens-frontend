@@ -49,6 +49,10 @@ export const ENDPOINTS = {
         delete: (id: string) => `/competitor-analysis/${id}`,
         export: (id: string, format: string) => `/competitor-analysis/${id}/export?format=${format}`,
     },
+    payments: {
+        subscription: "/payments/subscription",
+        checkout: "/payments/subscription/checkout",
+    },
 };
 
 export const axiosInstance = axios.create({

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { DashboardShell } from '@/components/dashboard/common/DashboardShell';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,8 +12,9 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
-import { mockUserSettings, mockSubscription } from '@/features/dashboard/mock-data';
-import { PlanBadge } from '@/components/dashboard/common/StatusBadge';
+import { Badge } from '@/components/ui/badge';
+import { mockUserSettings } from '@/features/dashboard/mock-data';
+import { useSubscription, useCreateCheckout } from '@/services/subscription/subscriptionQueries';
 import {
   User,
   Mail,
@@ -28,17 +30,27 @@ import {
   Lock,
   Plus,
   Download,
+  Sparkles,
+  Loader2,
 } from 'lucide-react';
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState(mockUserSettings);
   const [isLoading, setIsLoading] = useState(false);
+  const { data: subscription, isLoading: isLoadingSub } = useSubscription();
+  const { mutate: createCheckout, isPending: isCreatingCheckout } = useCreateCheckout();
 
   const handleSave = () => {
     setIsLoading(true);
     // Simulate API call
     setTimeout(() => setIsLoading(false), 1000);
   };
+
+  const handleUpgrade = () => {
+    createCheckout();
+  };
+
+  const isPro = subscription?.isPro ?? false;
 
   return (
     <DashboardShell role="user">
@@ -52,61 +64,90 @@ export default function SettingsPage() {
         </div>
 
         {/* Subscription Overview Card */}
-        <Card className="border-l-4 border-l-violet-500 bg-gradient-to-r from-violet-50/50 to-transparent dark:from-violet-950/20">
+        <Card className={`border-l-4 ${isPro ? 'border-l-violet-500 bg-gradient-to-r from-violet-50/50 to-transparent dark:from-violet-950/20' : 'border-l-neutral-400 bg-gradient-to-r from-neutral-50/50 to-transparent dark:from-neutral-950/20'}`}>
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="rounded-full bg-violet-100 dark:bg-violet-900/30 p-3">
-                  <Crown className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+                <div className={`rounded-full ${isPro ? 'bg-violet-100 dark:bg-violet-900/30' : 'bg-neutral-100 dark:bg-neutral-900/30'} p-3`}>
+                  <Crown className={`h-6 w-6 ${isPro ? 'text-violet-600 dark:text-violet-400' : 'text-neutral-600 dark:text-neutral-400'}`} />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-xl font-bold capitalize">{mockSubscription.plan} Plan</h3>
-                    <PlanBadge plan={mockSubscription.plan} />
+                    <h3 className="text-xl font-bold capitalize">
+                      {isLoadingSub ? 'Loading...' : isPro ? 'Pro Plan' : 'Standard Plan'}
+                    </h3>
+                    <Badge variant={isPro ? 'default' : 'outline'} className={isPro ? 'bg-violet-600' : ''}>
+                      {isPro ? 'PRO' : 'FREE'}
+                    </Badge>
                   </div>
                   <p className="text-muted-foreground">
-                    ${mockSubscription.price}/month • Renews on {mockSubscription.nextBillingDate}
+                    {isPro 
+                      ? 'Lifetime access • Active' 
+                      : 'Free forever • Limited features'}
                   </p>
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline">View Plans</Button>
-                <Button className="bg-violet-600 hover:bg-violet-700">Upgrade</Button>
+                {isPro ? (
+                  <Button variant="outline" disabled>
+                    You&apos;re on Pro
+                  </Button>
+                ) : (
+                  <Button 
+                    className="bg-violet-600 hover:bg-violet-700"
+                    onClick={handleUpgrade}
+                    disabled={isCreatingCheckout}
+                  >
+                    {isCreatingCheckout ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Upgrade to Pro
+                      </>
+                    )}
+                  </Button>
+                )}
               </div>
             </div>
             
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2">
-                    <Globe className="h-4 w-4 text-blue-500" />
-                    Sites
-                  </span>
-                  <span className="font-medium">{mockSubscription.usage.sites} / {mockSubscription.limits.sites}</span>
+            {isPro && (
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-blue-500" />
+                      Competitor Analysis
+                    </span>
+                    <span className="font-medium text-emerald-600">Unlimited</span>
+                  </div>
+                  <Progress value={100} className="h-2" />
                 </div>
-                <Progress value={(mockSubscription.usage.sites / mockSubscription.limits.sites) * 100} className="h-2" />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2">
-                    <BarChart3 className="h-4 w-4 text-emerald-500" />
-                    Keywords
-                  </span>
-                  <span className="font-medium">{mockSubscription.usage.keywords.toLocaleString()} / {mockSubscription.limits.keywords.toLocaleString()}</span>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2">
+                      <BarChart3 className="h-4 w-4 text-emerald-500" />
+                      CI/CD Integration
+                    </span>
+                    <span className="font-medium text-emerald-600">Enabled</span>
+                  </div>
+                  <Progress value={100} className="h-2" />
                 </div>
-                <Progress value={(mockSubscription.usage.keywords / mockSubscription.limits.keywords) * 100} className="h-2" />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-amber-500" />
-                    Reports
-                  </span>
-                  <span className="font-medium">127 / 500</span>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-amber-500" />
+                      Priority Support
+                    </span>
+                    <span className="font-medium text-emerald-600">Active</span>
+                  </div>
+                  <Progress value={100} className="h-2" />
                 </div>
-                <Progress value={25} className="h-2" />
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
@@ -410,14 +451,43 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-2xl font-bold capitalize">{mockSubscription.plan}</h3>
-                      <PlanBadge plan={mockSubscription.plan} />
+                      <h3 className="text-2xl font-bold capitalize">
+                        {isLoadingSub ? 'Loading...' : isPro ? 'Pro' : 'Standard'}
+                      </h3>
+                      <Badge variant={isPro ? 'default' : 'outline'} className={isPro ? 'bg-violet-600' : ''}>
+                        {isPro ? 'PRO' : 'FREE'}
+                      </Badge>
                     </div>
                     <p className="text-muted-foreground">
-                      ${mockSubscription.price}/month • Renews on {mockSubscription.nextBillingDate}
+                      {isPro 
+                        ? 'One-time payment of $5 • Lifetime access' 
+                        : 'Free forever • Upgrade to unlock Pro features'}
                     </p>
                   </div>
-                  <Button className="bg-violet-600 hover:bg-violet-700">Upgrade Plan</Button>
+                  {isPro ? (
+                    <Button disabled className="bg-violet-600">
+                      <Check className="mr-2 h-4 w-4" />
+                      Active
+                    </Button>
+                  ) : (
+                    <Button 
+                      className="bg-violet-600 hover:bg-violet-700"
+                      onClick={handleUpgrade}
+                      disabled={isCreatingCheckout}
+                    >
+                      {isCreatingCheckout ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="mr-2 h-4 w-4" />
+                          Upgrade to Pro
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
 
                 <Separator />
@@ -425,10 +495,21 @@ export default function SettingsPage() {
                 <div>
                   <h4 className="font-medium mb-3 flex items-center gap-2">
                     <Check className="h-4 w-4 text-emerald-500" />
-                    Plan Features
+                    {isPro ? 'Pro Features' : 'Standard Features'}
                   </h4>
                   <ul className="grid gap-2 md:grid-cols-2">
-                    {mockSubscription.features.map((feature, index) => (
+                    {[
+                      'Site SEO Analyzer',
+                      'Keyword Rank Checker',
+                      'Keyword Research',
+                      ...(isPro ? [
+                        'Competitor Analysis',
+                        'CI/CD Auto Re-analysis',
+                        'GitHub/GitLab Integration',
+                        'Priority Support',
+                        'Lifetime Access'
+                      ] : []),
+                    ].map((feature, index) => (
                       <li key={index} className="flex items-center gap-2">
                         <Check className="h-4 w-4 text-green-600" />
                         <span className="text-sm">{feature}</span>
@@ -437,125 +518,37 @@ export default function SettingsPage() {
                   </ul>
                 </div>
 
-                <Separator />
-
-                <div>
-                  <h4 className="font-medium mb-3 flex items-center gap-2">
-                    <BarChart3 className="h-4 w-4 text-blue-500" />
-                    Usage
-                  </h4>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="flex items-center gap-2">
-                          <Globe className="h-4 w-4 text-blue-500" />
-                          Sites
-                        </span>
-                        <span>
-                          {mockSubscription.usage.sites} / {mockSubscription.limits.sites}
-                        </span>
-                      </div>
-                      <div className="h-2 rounded-full bg-muted overflow-hidden">
-                        <div
-                          className="h-2 rounded-full bg-blue-500"
-                          style={{
-                            width: `${(mockSubscription.usage.sites / mockSubscription.limits.sites) * 100}%`,
-                          }}
-                        />
-                      </div>
+                {!isPro && (
+                  <>
+                    <Separator />
+                    <div className="rounded-xl bg-muted p-6 text-center">
+                      <h4 className="font-medium mb-2">Upgrade to Pro</h4>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Get lifetime access to all Pro features for a one-time payment of $5
+                      </p>
+                      <Button 
+                        className="rounded-full"
+                        size="lg"
+                        onClick={handleUpgrade}
+                        disabled={isCreatingCheckout}
+                      >
+                        {isCreatingCheckout ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="mr-2 h-4 w-4" />
+                            Upgrade Now
+                          </>
+                        )}
+                      </Button>
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="flex items-center gap-2">
-                          <BarChart3 className="h-4 w-4 text-emerald-500" />
-                          Keywords
-                        </span>
-                        <span>
-                          {mockSubscription.usage.keywords.toLocaleString()} /{' '}
-                          {mockSubscription.limits.keywords.toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="h-2 rounded-full bg-muted overflow-hidden">
-                        <div
-                          className="h-2 rounded-full bg-emerald-500"
-                          style={{
-                            width: `${(mockSubscription.usage.keywords / mockSubscription.limits.keywords) * 100}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  </>
+                )}
               </CardContent>
             </Card>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-cyan-500" />
-                    Payment Method
-                  </CardTitle>
-                  <CardDescription>Manage your payment methods</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-4 rounded-lg border p-4">
-                    <div className="rounded-md bg-cyan-100 dark:bg-cyan-900/30 p-2">
-                      <CreditCard className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium">•••• •••• •••• 4242</p>
-                      <p className="text-sm text-muted-foreground">Expires 12/25</p>
-                    </div>
-                    <Button variant="ghost" size="sm">
-                      Edit
-                    </Button>
-                  </div>
-                  <Button variant="outline" className="w-full mt-4">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Payment Method
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-pink-500" />
-                    Billing History
-                  </CardTitle>
-                  <CardDescription>View your past invoices</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {[
-                    { date: 'Jan 15, 2024', amount: '$99.00', status: 'Paid', color: 'emerald' },
-                    { date: 'Dec 15, 2023', amount: '$99.00', status: 'Paid', color: 'emerald' },
-                    { date: 'Nov 15, 2023', amount: '$99.00', status: 'Paid', color: 'emerald' },
-                  ].map((invoice, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between rounded-lg border p-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`rounded-full bg-${invoice.color}-100 dark:bg-${invoice.color}-900/30 p-2`}>
-                          <CreditCard className={`h-4 w-4 text-${invoice.color}-600 dark:text-${invoice.color}-400`} />
-                        </div>
-                        <div>
-                          <p className="font-medium">{invoice.date}</p>
-                          <p className={`text-sm text-${invoice.color}-600`}>{invoice.status}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{invoice.amount}</span>
-                        <Button variant="ghost" size="sm">
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
           </TabsContent>
 
           {/* Security Tab */}

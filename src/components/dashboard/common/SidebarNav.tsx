@@ -1,12 +1,16 @@
 'use client';
 
 import * as React from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { USER_NAV_ITEMS, ADMIN_NAV_ITEMS } from '@/features/dashboard/config';
 import { useCurrentUser, useCurrentAdmin, getInitials } from '@/services/auth/authQuery';
+import { useIsPro } from '@/services/subscription/subscriptionQueries';
+import { ProBadge } from '@/components/subscription/ProBadge';
+import { UpgradeModal } from '@/components/subscription/UpgradeModal';
 import {
   LayoutDashboard,
   Search,
@@ -51,12 +55,20 @@ export function SidebarNav({ role, isOpen, onToggle }: SidebarNavProps) {
   const navItems = role === 'admin' ? ADMIN_NAV_ITEMS : USER_NAV_ITEMS;
   const { data: user } = useCurrentUser(role === 'user');
   const { data: admin } = useCurrentAdmin(role === 'admin');
-  console.log("useer ",user)
-  console.log("admn ",admin)
+  const { isPro, isLoading: isLoadingSub } = useIsPro();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const currentUser = role === 'admin' ? admin : user;
   const userName = currentUser?.fullName || (role === 'admin' ? 'Admin' : 'User');
   const userInitials = getInitials(userName);
+
+  const handleNavClick = (e: React.MouseEvent, item: typeof navItems[number]) => {
+    // Check if this is a Pro item and user is not Pro
+    if ('isPro' in item && item.isPro && !isPro && !isLoadingSub) {
+      e.preventDefault();
+      setShowUpgradeModal(true);
+    }
+  };
 
   return (
     <>
@@ -118,25 +130,37 @@ export function SidebarNav({ role, isOpen, onToggle }: SidebarNavProps) {
               const isActive = isRootDashboard
                 ? pathname === item.href
                 : pathname === item.href || pathname?.startsWith(`${item.href}/`);
+              const isProItem = 'isPro' in item && item.isPro;
+              const isLocked = isProItem && !isPro && !isLoadingSub;
 
               return (
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={(e) => handleNavClick(e, item)}
                   className={cn(
                     'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 group',
                     'hover:bg-[var(--dashboard-sidebar-hover)] hover:shadow-sm',
                     isActive && 'bg-neutral-900 text-white shadow-lg dark:bg-white dark:text-neutral-900 hover:bg-neutral-800 dark:hover:bg-neutral-100',
                     !isActive && 'text-[var(--dashboard-text-muted)] hover:text-[var(--dashboard-text)]',
-                    !isOpen && 'lg:justify-center'
+                    !isOpen && 'lg:justify-center',
+                    isLocked && 'opacity-70'
                   )}
                 >
                   <Icon className={cn('h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110', !isOpen && 'lg:mx-auto')} />
-                  <span className={cn('whitespace-nowrap', !isOpen && 'lg:hidden')}>{item.label}</span>
+                  <span className={cn('whitespace-nowrap flex items-center', !isOpen && 'lg:hidden')}>
+                    {item.label}
+                    {isProItem && (
+                      <ProBadge locked={isLocked} />
+                    )}
+                  </span>
                 </Link>
               );
             })}
           </nav>
+
+        {/* Upgrade Modal */}
+        <UpgradeModal open={showUpgradeModal} onOpenChange={setShowUpgradeModal} />
         </div>
 
         {/* Footer */}

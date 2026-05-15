@@ -1,20 +1,25 @@
 "use client"
 
 import Link from "next/link"
-import { Search, Menu, X, Sun, Moon } from "lucide-react"
+import { Search, Menu, X, Sun, Moon, ChevronDown } from "lucide-react"
 import { useState } from "react"
 import { useTheme } from "@/components/theme-provider"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function SeoHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
-   
-  const navLinks = [
-    { name: "Site Crawler", href: "/analyze-site-seo" },
+
+  const services = [
+    { name: "Site SEO Analyzer", href: "/analyze-site-seo" },
     { name: "Keyword Rank", href: "/analyze-rank" },
     { name: "Keyword Research", href: "/suggest-keywords" },
-    { name: "Competitor Analysis", href: "/analyze-competitor" },
   ]
 
   return (
@@ -33,15 +38,37 @@ export default function SeoHeader() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all duration-200"
-              >
-                {link.name}
-              </Link>
-            ))}
+            {/* Services Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                >
+                  Services
+                  <ChevronDown className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                {services.map((service) => (
+                  <DropdownMenuItem key={service.name} asChild>
+                    <Link
+                      href={service.href}
+                      className="cursor-pointer"
+                    >
+                      {service.name}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Link
+              href="/#pricing"
+              className="px-4 py-2 rounded-lg text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all duration-200"
+            >
+              Pricing
+            </Link>
           </nav>
 
           {/* Desktop CTA */}
@@ -74,16 +101,26 @@ export default function SeoHeader() {
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <nav className="md:hidden mt-4 pb-4 border-t border-neutral-200 dark:border-neutral-800 pt-4 space-y-2">
-            {navLinks.map((link) => (
+            <div className="px-4 py-2 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+              Services
+            </div>
+            {services.map((service) => (
               <Link
-                key={link.href}
-                href={link.href}
+                key={service.name}
+                href={service.href}
                 onClick={() => setMobileMenuOpen(false)}
                 className="block px-4 py-3 rounded-lg text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all duration-200"
               >
-                {link.name}
+                {service.name}
               </Link>
             ))}
+            <Link
+              href="/#pricing"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-4 py-3 rounded-lg text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all duration-200"
+            >
+              Pricing
+            </Link>
             <button
               onClick={() => {
                 toggleTheme()
